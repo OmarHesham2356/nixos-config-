@@ -1,34 +1,42 @@
 {
-  description = "A very basic flake";
+  description = "NixOS flake configuration with Niri, Home Manager, and DankMaterialShell";
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
-    
+
+    # LazyVim (Neovim distribution)
+    lazyvim = {
+      url = "github:LazyVim/LazyVim";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # Home-manager for user-level configuration
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    
+
     # DankMaterialShell - the shell/overlay
     dms = {
       url = "github:AvengeMedia/DankMaterialShell/stable";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    
-    # Niri from nixpkgs (niri-flake removed due to build issues)
   };
   outputs =
-    { self, nixpkgs, home-manager, dms }:
+    {
+      self,
+      nixpkgs,
+      home-manager,
+      dms,
+      lazyvim,
+    }@inputs:
     {
       nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         specialArgs = {
-          # Pass flake inputs to the NixOS configuration
-          inherit dms;
+          inherit inputs dms;
         };
         modules = [
-          ./configuration.nix
-          home-manager.nixosModules.home-manager
+          ./hosts/nixos/configuration.nix
         ];
       };
     };
