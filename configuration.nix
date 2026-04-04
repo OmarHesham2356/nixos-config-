@@ -2,12 +2,18 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, ... }:
+{ config, pkgs, dms, ... }:
 
 {
   imports = [
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
+    
+    # Import DMS NixOS module (system-wide installation)
+    dms.nixosModules.dank-material-shell
+    
+    # Zsh shell configuration
+    ./modules/shell/zsh.nix
   ];
 
   # Limit build jobs to prevent OOM
@@ -67,9 +73,10 @@
   # Enable the X11 windowing system.
   services.xserver.enable = true;
 
-  # Enable the GNOME Desktop Environment.
-  services.displayManager.gdm.enable = true;
-  services.desktopManager.gnome.enable = true;
+  # Disable GNOME Desktop - we use niri as our compositor/wm
+  # Keep gnome apps installed but don't run gnome as desktop
+  services.desktopManager.gnome.enable = false;
+  services.displayManager.gdm.enable = false;
 
   # Configure keymap in X11
   services.xserver.xkb = {
@@ -164,6 +171,28 @@
   #fwupd is a simple daemon allowing you to update some devices' firmware, including UEFI for several machines.
   services.fwupd.enable = true;
 
+  #Niri - using niri-flake
+  programs.niri.enable = true;
+
+  # DankMaterialShell configuration (NixOS module - system-wide)
+  # Note: niri integration features (keybinds, includes) require home-manager
+  # This uses systemd for auto-start instead
+  programs.dank-material-shell = {
+    enable = true;
+    
+    # Auto-start DMS via systemd
+    systemd = {
+      enable = true;
+      restartIfChanged = true;
+    };
+    
+    # Enable core features
+    enableSystemMonitoring = true;  # System monitoring widgets (dgop)
+    enableDynamicTheming = true;    # Wallpaper-based theming (matugen)
+    enableAudioWavelength = true;  # Audio visualizer (cava)
+    enableClipboardPaste = true;    # Clipboard manager
+  };
+
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
@@ -197,6 +226,16 @@
     nix-tree
     heroic
     steam-run
+    tree
+    fzf
+    zsh
+    zsh-autosuggestions
+    zsh-syntax-highlighting
+    zsh-fzf-tab
+    lazygit
+    bat
+    tmux
+    kdePackages.dolphin
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
