@@ -8,12 +8,11 @@
   # Oh My Zsh + external plugins
   programs.zsh.ohMyZsh = {
     enable = true;
-    theme = "strug";                  # your chosen theme
+    theme = "strug";
     plugins = [
-      "git"          # built‑in oh‑my‑zsh plugin
-      "z"            # built‑in "z" directory jumper
-      "sudo"         # double‑tap Esc to add sudo
-      # The following three are *external* plugins – we add them below
+      "git"
+      "z"
+      "sudo"
     ];
   };
 
@@ -29,40 +28,25 @@
     }
     {
       name = "fzf-tab";
-      src = pkgs.fzf-tab;
+      src = pkgs.zsh-fzf-tab;      # corrected package name
+      file = "fzf-tab.zsh";        # main file
     }
   ];
 
-  # Enable fzf (required for fzf‑tab)
-  programs.fzf.enable = true;
-
   # Aliases, environment variables, and zstyle commands
   programs.zsh.interactiveShellInit = ''
-    # Aliases (from your config)
     alias lg='lazygit'
-
-    # Export PATH additions
     export PATH="$HOME/.local/bin:$PATH"
-    export PATH="$HOME/.opencode/bin:$PATH"   # adjust path if needed
-
-    # Fastfetch at login (run once)
+    export PATH="$HOME/.opencode/bin:$PATH"
     fastfetch
 
-    # ---- zstyle settings (completion, fzf‑tab previews) ----
-    # Disable sort when completing `git checkout`
+    # zstyle settings
     zstyle ':completion:*:git-checkout:*' sort false
-    # Set descriptions format to enable group support
     zstyle ':completion:*:descriptions' format '[%d]'
-
-    # Preview directory content with eza (you may need to install eza)
     zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
-    # Preview file content using bat (install bat if desired)
     zstyle ':fzf-tab:complete:*:*' fzf-preview 'bat --color=always --style=numbers --line-range=:500 $realpath'
-    # Switch group using < and >
     zstyle ':fzf-tab:*' switch-group '<' '>'
-    # Use tmux popup for fzf-tab (requires tmux)
     zstyle ':fzf-tab:*' fzf-command ftb-tmux-popup
-    # "Fake Popup" configuration
     zstyle ':fzf-tab:*' fzf-flags --height=80% --layout=reverse --border --margin=10%,20% --preview-window=right:50%
   '';
 }
