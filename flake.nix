@@ -3,9 +3,9 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
 
-    # LazyVim (Neovim distribution)
-    lazyvim = {
-      url = "github:LazyVim/LazyVim";
+    # LazyVim (Neovim distribution) via LazyVim-module
+    LazyVim = {
+      url = "github:matadaniel/LazyVim-module";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -27,7 +27,7 @@
       nixpkgs,
       home-manager,
       dms,
-      lazyvim,
+      LazyVim,
     }@inputs:
     {
       nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {

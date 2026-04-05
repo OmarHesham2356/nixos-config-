@@ -72,7 +72,7 @@
     alsa.support32Bit = true;
     pulse.enable = true;
   };
-  
+
   #Install Firefox
   programs.firefox.enable = true;
 
@@ -92,6 +92,12 @@
     # 2. Set Zsh as the default shell
     shell = pkgs.zsh;
   };
+
+  #Power management
+  services.upower.enable = true;
+  
+  # Also ensure power-profiles-daemon is active (which shows in your screenshot)
+  services.power-profiles-daemon.enable = true;
 
   # Flatpak
   services.flatpak.enable = true;
@@ -136,6 +142,9 @@
   # Niri compositor
   programs.niri.enable = true;
 
+  # Ensure Xwayland is supported
+  programs.xwayland.enable = true;
+
   # System packages
   environment.systemPackages = with pkgs; [
     config.boot.kernelPackages.nvidiaPackages.stable.bin
@@ -172,5 +181,6 @@
     bat
     tmux
     kdePackages.dolphin
+    baobab
   ];
 }

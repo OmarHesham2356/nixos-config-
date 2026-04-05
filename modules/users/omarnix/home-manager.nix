@@ -10,16 +10,52 @@
   # Import DMS home-manager modules
   imports = [
     dms.homeModules.dank-material-shell
-    inputs.lazyvim.homeManagerModules.default
   ];
 
   # Required home-manager state version
   home.stateVersion = "25.11";
 
-  # LazyVim configuration via nixvim
-  programs.nixvim = {
+  programs.neovim = {
     enable = true;
-    inherit (inputs.lazyvim.lib.extras) "lazyvim-extras";
+    defaultEditor = true;
+    viAlias = true;
+    vimAlias = true;
+
+    # Essential system dependencies for LazyVim/Telescope
+    extraPackages = with pkgs; [
+      # 1. Neovim Core Requirements
+      git
+      gcc
+      gnumake
+      unzip
+      wget
+      ripgrep
+      fd
+      lua
+      luarocks
+
+      # 2. Language Runtimes (for Mason/LSPs)
+      nodejs_22
+      python3
+      python3Packages.pip
+      go
+      cargo
+
+      # 3. Media & Image Support (for snacks.nvim)
+      imagemagick
+      ghostscript
+
+      # 4. LSPs & Formatters
+      lua-language-server
+      stylua
+      nil # Nix Language Server
+    ];
+  };
+
+  # Link your local LazyVim config files to the standard Neovim config path
+  xdg.configFile."nvim" = {
+    source = ./nvim; # Point this to your nvim config folder
+    recursive = true;
   };
 
   # Zsh shell configuration
