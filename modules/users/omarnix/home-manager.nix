@@ -83,7 +83,7 @@
     ];
 
     # CHANGED: Use initExtra instead of interactiveShellInit
-    initExtra = ''
+    initConent = ''
       alias lg='lazygit'
       export PATH="$HOME/.local/bin:$PATH"
       export PATH="$HOME/.opencode/bin:$PATH"

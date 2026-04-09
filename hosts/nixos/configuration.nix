@@ -103,7 +103,10 @@
   services.flatpak.enable = true;
 
   # Nvidia
-  hardware.graphics.enable = true;
+  hardware.graphics = {
+  enable = true;
+  enable32Bit = true; # Required for many game launchers
+};
   services.xserver.videoDrivers = [ "nvidia" ];
 
   hardware.nvidia = {
@@ -145,42 +148,60 @@
   # Ensure Xwayland is supported
   programs.xwayland.enable = true;
 
+  #nix-ld for better performance with Nvidia drivers
+  programs.nix-ld.enable = true;
+
+
+  services.open-webui = {
+    enable = true;
+    port = 8080; # You can choose any port
+  };
+
+    
   # System packages
   environment.systemPackages = with pkgs; [
-    config.boot.kernelPackages.nvidiaPackages.stable.bin
-    vim
-    vesktop
-    opencode
-    git
-    spotify
-    zed-editor-fhs
-    nil
-    nixpkgs-fmt
-    fastfetch
-    ghostty
-    refine
-    vscode-fhs
-    protonplus
-    ntfs3g
-    gparted
-    mtpaint
-    mission-center
-    obsidian
-    obs-studio
+    baobab
+    bat
     btop
-    mysql-workbench
-    nix-tree
-    heroic
-    steam-run
-    tree
+    config.boot.kernelPackages.nvidiaPackages.stable.bin
+    fastfetch
     fzf
+    ghostty
+    git
+    gparted
+    ollama-cuda
+    heroic
+    kdePackages.dolphin
+    lazygit
+    libva-vdpau-driver
+    libvdpau-va-gl
+    mission-center
+    mtpaint
+    mysql-workbench
+    mermaid-cli
+    nil
+    nix-tree
+    nixpkgs-fmt
+    ntfs3g
+    nvidia-vaapi-driver # Helps with Nvidia video decoding
+    obs-studio
+    obsidian
+    opencode
+    claude-code
+    protonplus
+    refine
+    spotify
+    steam-run
+    tmux
+    tree
+    vesktop
+    vim
+    vscode-fhs
+    xwayland
+    xwayland-satellite 
+    zed-editor-fhs
     zsh
     zsh-autosuggestions
     zsh-syntax-highlighting
-    lazygit
-    bat
-    tmux
-    kdePackages.dolphin
-    baobab
   ];
 }
