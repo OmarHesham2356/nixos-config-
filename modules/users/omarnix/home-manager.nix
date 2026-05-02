@@ -3,6 +3,7 @@
   lib,
   dms,
   inputs,
+  config,
   ...
 }:
 
@@ -83,8 +84,15 @@
     ];
 
     # CHANGED: Use initExtra instead of interactiveShellInit
-    initConent = ''
+    initExtra = ''
+      # Source matugen colors if available
+      [[ -f ~/.config/zsh/colors.zsh ]] && source ~/.config/zsh/colors.zsh
+
+      # Apply matugen colors to prompt and syntax highlighting
+      [[ -f ~/.config/zsh/zsh-matugen-colors.zsh ]] && source ~/.config/zsh/zsh-matugen-colors.zsh
+
       alias lg='lazygit'
+      alias xv6='podman start -ai xv6-debian'
       export PATH="$HOME/.local/bin:$PATH"
       export PATH="$HOME/.opencode/bin:$PATH"
       fastfetch
@@ -119,4 +127,73 @@
       restartIfChanged = true;
     };
   };
+
+  # Matugen template for tmux theming
+  xdg.configFile."matugen/templates/tmux-colors.conf" = {
+    source = ./templates/tmux-colors.conf;
+  };
+
+  # Matugen template for zsh theming
+  xdg.configFile."matugen/templates/zsh-colors.zsh" = {
+    source = ./templates/zsh-colors.zsh;
+  };
+
+  # Script to apply matugen colors to prompt and syntax highlighting
+  xdg.configFile."zsh/zsh-matugen-colors.zsh" = {
+    source = ./scripts/zsh-matugen-colors.zsh;
+  };
+
+  # Matugen config to use the tmux and zsh templates
+  xdg.configFile."matugen/config.toml".text = ''
+    [config]
+
+    [templates.tmux-theme]
+    input_path = '${config.home.homeDirectory}/.config/matugen/templates/tmux-colors.conf'
+    output_path = '${config.home.homeDirectory}/.config/tmux/theme.conf'
+
+    [templates.zsh-theme]
+    input_path = '${config.home.homeDirectory}/.config/matugen/templates/zsh-colors.zsh'
+    output_path = '${config.home.homeDirectory}/.config/zsh/colors.zsh'
+  '';
+
+  # Tmux configuration with matugen theming
+  programs.tmux = {
+    enable = true;
+    terminal = "screen-256color";
+    extraConfig = ''
+      source-file ~/.config/tmux/theme.conf
+    '';
+  };
+
+  # Script to reload tmux config
+  xdg.configFile."scripts/tmux-reload.sh" = {
+    text = ''
+      #!/bin/sh
+      tmux source-file ~/.config/tmux/theme.conf 2>/dev/null || true
+    '';
+    executable = true;
+  };
+
+  # Manually create systemd path unit (watch for theme.conf changes)
+  xdg.configFile."systemd/user/tmux-theme-watcher.path".text = ''
+    [Unit]
+    Description=Watch tmux theme for changes
+
+    [Path]
+    PathModified=${config.home.homeDirectory}/.config/tmux/theme.conf
+    Unit=tmux-reload.service
+
+    [Install]
+    WantedBy=default.target
+  '';
+
+  # Manually create systemd service (reload tmux)
+  xdg.configFile."systemd/user/tmux-reload.service".text = ''
+    [Unit]
+    Description=Reload tmux config
+
+    [Service]
+    Type=oneshot
+    ExecStart=${config.home.homeDirectory}/.config/scripts/tmux-reload.sh
+  '';
 }
