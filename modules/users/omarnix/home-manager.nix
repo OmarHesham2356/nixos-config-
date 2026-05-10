@@ -185,6 +185,7 @@
       # tmux-resurrect configuration
       set -g @resurrect-capture-pane-contents 'on'
       set -g @resurrect-strategy-nvim 'session'
+      set -g @resurrect-processes '"opencode" "lazygit"'
       
       set -g mouse on
       # Source matugen theme
