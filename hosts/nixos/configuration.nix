@@ -288,8 +288,8 @@
         pkgs.zstd
         pkgs.nss
         pkgs.nspr
-        pkgs.xorg.libxshmfence
-        pkgs.xorg.libXdamage
+        pkgs.libxshmfence
+        pkgs.libXdamage
         pkgs.libdrm
         pkgs.mesa
         pkgs.alsa-lib
@@ -313,5 +313,6 @@
     zsh
     zsh-autosuggestions
     zsh-syntax-highlighting
+    p7zip
   ];
 }

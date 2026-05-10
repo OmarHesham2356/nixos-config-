@@ -128,6 +128,20 @@
     };
   };
 
+  # Yazi file manager configuration with zip compression shortcut
+  programs.yazi = {
+    enable = true;
+    keymap = {
+      manager.prepend_keymap = [
+        {
+          on = [ "c" "z" ];
+          run = ''shell 'zip -r "$@.zip" "$@"' --block --confirm'';
+          desc = "Zip selected files";
+        }
+      ];
+    };
+  };
+
   # Matugen template for tmux theming
   xdg.configFile."matugen/templates/tmux-colors.conf" = {
     source = ./templates/tmux-colors.conf;
@@ -156,12 +170,27 @@
     output_path = '${config.home.homeDirectory}/.config/zsh/colors.zsh'
   '';
 
-  # Tmux configuration with matugen theming
+  # Tmux configuration with matugen theming and tpm plugin manager
   programs.tmux = {
     enable = true;
     terminal = "screen-256color";
+    keyMode = "vi";
     extraConfig = ''
+      # List of plugins
+      set -g @plugin 'tmux-plugins/tpm'
+      set -g @plugin 'tmux-plugins/tmux-sensible'
+      set -g @plugin 'tmux-plugins/tmux-resurrect'
+      set -g @plugin 'tmux-plugins/tmux-yank'
+      
+      # tmux-resurrect configuration
+      set -g @resurrect-capture-pane-contents 'on'
+      set -g @resurrect-strategy-nvim 'session'
+      
+      set -g mouse on
+      # Source matugen theme
       source-file ~/.config/tmux/theme.conf
+      # Initialize TMUX plugin manager (keep this line at the very bottom of tmux.conf)
+      run '~/.tmux/plugins/tpm/tpm'
     '';
   };
 
