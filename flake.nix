@@ -21,23 +21,31 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
-  outputs =
-    {
-      self,
-      nixpkgs,
-      home-manager,
-      dms,
-      LazyVim,
-    }@inputs:
-    {
-      nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
-        system = "x86_64-linux";
-        specialArgs = {
-          inherit inputs dms;
-        };
-        modules = [
-          ./hosts/nixos/configuration.nix
-        ];
+outputs =
+  {
+    self,
+    nixpkgs,
+    home-manager,
+    dms,
+    LazyVim,
+  }@inputs:
+  {
+    nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
+      system = "x86_64-linux";
+      specialArgs = {
+        inherit inputs dms;
       };
+      modules = [
+        ./hosts/nixos/configuration.nix
+      ];
     };
+    
+    homeConfigurations."omarnix@nixos" = home-manager.lib.homeManagerConfiguration {
+      pkgs = inputs.nixpkgs.legacyPackages.x86_64-linux;
+      modules = [
+        ./modules/users/omarnix/home-manager.nix
+      ];
+      extraSpecialArgs = { inherit inputs dms; };
+    };
+  };
 }

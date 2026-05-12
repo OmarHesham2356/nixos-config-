@@ -15,6 +15,8 @@
 
   # Required home-manager state version
   home.stateVersion = "25.11";
+  home.username = "omarnix";
+  home.homeDirectory = "/home/omarnix";
 
   programs.neovim = {
     enable = true;
@@ -169,6 +171,30 @@
     input_path = '${config.home.homeDirectory}/.config/matugen/templates/zsh-colors.zsh'
     output_path = '${config.home.homeDirectory}/.config/zsh/colors.zsh'
   '';
+
+  # Ghostty configuration and themes
+  xdg.configFile."ghostty" = {
+    source = ./ghostty;
+    recursive = true;
+  };
+
+  # Btop configuration and themes
+  xdg.configFile."btop" = {
+    source = ./btop;
+    recursive = true;
+  };
+
+  # Cava configuration, shaders, and themes
+  xdg.configFile."cava" = {
+    source = ./cava;
+    recursive = true;
+  };
+
+  # Niri window manager configuration
+  xdg.configFile."niri" = {
+    source = ./niri;
+    recursive = true;
+  };
 
   # Tmux configuration with matugen theming and tpm plugin manager
   programs.tmux = {

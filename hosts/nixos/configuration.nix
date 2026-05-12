@@ -23,6 +23,13 @@
     inputs.home-manager.nixosModules.home-manager
   ];
 
+  # Bluetooth
+  hardware.bluetooth = {
+    enable = true;
+    powerOnBoot = false;
+  };
+  services.blueman.enable = true;
+
   # 2. Configure Home Manager
   home-manager = {
     useGlobalPkgs = true;
