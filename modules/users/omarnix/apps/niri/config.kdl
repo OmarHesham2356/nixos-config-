@@ -1,0 +1,56 @@
+// This config is in the KDL format: https://kdl.dev
+// https://github.com/YaLTeR/niri/wiki/Configuration:-Introduction
+
+// DMS generated config includes
+include "./dms/colors.kdl"
+include "./dms/layout.kdl"
+include "./dms/alttab.kdl"
+include "./dms/outputs.kdl"
+include "./dms/cursor.kdl"
+include "./dms/wpblur.kdl"
+
+// Niri sub-modules
+include "./outputs.kdl"
+include "./input.kdl"
+include "./layout.kdl"
+include "./animations.kdl"
+include "./environment.kdl"
+include "./startup.kdl"
+include "./window-rules.kdl"
+include "./keybinds.kdl"
+
+workspace "1" {
+    open-on-output "DP-1"
+}
+
+workspace "2" {
+    open-on-output "DP-1"
+}
+
+config-notification {
+    disable-failed
+}
+
+gestures {
+    hot-corners {
+        off
+    }
+}
+
+overview {
+    workspace-shadow {
+        off
+    }
+}
+
+hotkey-overlay {
+    skip-at-startup
+}
+
+prefer-no-csd
+
+screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
+
+debug {
+    honor-xdg-activation-with-invalid-serial
+}

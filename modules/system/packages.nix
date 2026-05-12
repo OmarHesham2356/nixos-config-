@@ -1,0 +1,77 @@
+{ config, pkgs, ... }:
+
+{
+  environment.systemPackages = with pkgs; [
+    python313
+    python313Packages.pip
+    onlyoffice-desktopeditors
+    baobab
+    bat
+    btop
+    config.boot.kernelPackages.nvidiaPackages.stable.bin
+    fastfetch
+    fzf
+    gh
+    ghostty
+    git
+    gparted
+    ollama-cuda
+    heroic
+    kdePackages.dolphin
+    lazygit
+    libva-vdpau-driver
+    libvdpau-va-gl
+    mission-center
+    mtpaint
+    mysql-workbench
+    mermaid-cli
+    nil
+    nix-tree
+    nixpkgs-fmt
+    ntfs3g
+    nvidia-vaapi-driver
+    obs-studio
+    obsidian
+    opencode
+    claude-code
+    protonplus
+    refine
+    spotify
+    swayidle
+    qwen-code
+    github-copilot-cli
+    qbittorrent
+    gearlever
+    (appimage-run.override {
+      extraPkgs = pkgs: with pkgs; [
+        pkgs.zstd
+        pkgs.nss
+        pkgs.nspr
+        pkgs.libxshmfence
+        pkgs.libXdamage
+        pkgs.libdrm
+        pkgs.mesa
+        pkgs.alsa-lib
+        pkgs.at-spi2-atk
+        pkgs.atk
+        pkgs.dbus
+        pkgs.expat
+      ];
+    })
+    vnstat
+    steam-run
+    tmux
+    tree
+    vesktop
+    vim
+    vscode-fhs
+    nodejs_22
+    xwayland
+    xwayland-satellite
+    zed-editor-fhs
+    zsh
+    zsh-autosuggestions
+    zsh-syntax-highlighting
+    p7zip
+  ];
+}

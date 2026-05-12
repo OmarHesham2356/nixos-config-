@@ -1,0 +1,4 @@
+output "DP-1" {
+    mode "1920x1080@120.000"
+    position x=-1080 y=0
+}

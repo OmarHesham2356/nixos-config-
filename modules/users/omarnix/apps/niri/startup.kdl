@@ -1,0 +1,6 @@
+spawn-at-startup "dbus-update-activation-environment" "--systemd" "XDG_CURRENT_DESKTOP"
+spawn-at-startup "xwayland-satellite"
+spawn-at-startup "/usr/libexec/kf6/polkit-kde-authentication-agent-1"
+spawn-at-startup "dbus-update-activation-environment" "--all"
+spawn-at-startup "gnome-keyring-daemon" "--start" "--components=secrets"
+spawn-at-startup "sh" "-c" "while ! busctl --user status org.gnome.Mutter.ScreenCast >/dev/null 2>&1; do sleep 0.2; done; pkill -f xdg-desktop-portal-gnome"

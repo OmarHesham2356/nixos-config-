@@ -144,19 +144,18 @@
     };
   };
 
-  # Matugen template for tmux theming
+  # Matugen templates for dynamic theming
   xdg.configFile."matugen/templates/tmux-colors.conf" = {
-    source = ./templates/tmux-colors.conf;
+    source = ./theming/templates/tmux-colors.conf;
   };
 
-  # Matugen template for zsh theming
   xdg.configFile."matugen/templates/zsh-colors.zsh" = {
-    source = ./templates/zsh-colors.zsh;
+    source = ./theming/templates/zsh-colors.zsh;
   };
 
   # Script to apply matugen colors to prompt and syntax highlighting
   xdg.configFile."zsh/zsh-matugen-colors.zsh" = {
-    source = ./scripts/zsh-matugen-colors.zsh;
+    source = ./theming/scripts/zsh-matugen-colors.zsh;
   };
 
   # Matugen config to use the tmux and zsh templates
@@ -172,27 +171,26 @@
     output_path = '${config.home.homeDirectory}/.config/zsh/colors.zsh'
   '';
 
-  # Ghostty configuration and themes
-  xdg.configFile."ghostty" = {
-    source = ./ghostty;
-    recursive = true;
+  # Ghostty configuration (theme directory is managed by matugen)
+  xdg.configFile."ghostty/config.ghostty" = {
+    source = ./apps/ghostty/config.ghostty;
   };
 
   # Btop configuration and themes
   xdg.configFile."btop" = {
-    source = ./btop;
+    source = ./apps/btop;
     recursive = true;
   };
 
   # Cava configuration, shaders, and themes
   xdg.configFile."cava" = {
-    source = ./cava;
+    source = ./apps/cava;
     recursive = true;
   };
 
-  # Niri window manager configuration
+  # Niri window manager configuration (dms directory is managed by DMS)
   xdg.configFile."niri" = {
-    source = ./niri;
+    source = ./apps/niri;
     recursive = true;
   };
 

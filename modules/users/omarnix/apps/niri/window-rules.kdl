@@ -1,0 +1,103 @@
+window-rule {
+    match app-id=r#"^org\.wezfurlong\.wezterm$"#
+    default-column-width {}
+}
+
+window-rule {
+    match app-id=r#"^org\.gnome\."#
+    draw-border-with-background false
+    geometry-corner-radius 12
+    clip-to-geometry true
+}
+
+window-rule {
+    match app-id=r#"^gnome-control-center$"#
+    match app-id=r#"^pavucontrol$"#
+    match app-id=r#"^nm-connection-editor$"#
+    default-column-width { proportion 0.5; }
+    open-floating false
+}
+
+window-rule {
+    match app-id=r#"^org.gnome.Calculator$"#
+    match app-id=r#"^org.quickshell$"#
+    match app-id=r#"^galculator$"#
+    match app-id=r#"^blueman-manager$"#
+    match app-id=r#"^org\.gnome\.Nautilus$"#
+    match app-id=r#"^steam$"#
+    match app-id=r#"^xdg-desktop-portal$"#
+    match app-id=r#"^Windscribe$"#
+    match app-id=r#"^io.missioncenter.MissionCenter$"#
+    match app-id=r#"firefox$"# title="^Library$"
+    match app-id=r#"zen-browser"# title="Library"
+    match app-id=r#"com.network.manager"#
+    open-floating true
+}
+
+window-rule {
+    match app-id=r#"^org\.wezfurlong\.wezterm$"#
+    match app-id="Alacritty"
+    match app-id="zen"
+    match app-id="com.mitchellh.ghostty"
+    match app-id="kitty"
+    draw-border-with-background false
+}
+
+window-rule {
+    match is-active=false
+    opacity 0.9
+}
+
+window-rule {
+    match app-id=r#"firefox$"# title="^Picture-in-Picture$"
+    match app-id="zoom"
+    open-floating true
+}
+
+window-rule {
+    geometry-corner-radius 10
+    clip-to-geometry true
+}
+
+window-rule {
+    match title="Ghostty"
+    open-on-workspace "1"
+    open-maximized true
+    open-on-output "DP-1"
+}
+
+window-rule {
+    match title="Zen Browser"
+    open-on-workspace "2"
+    open-maximized true
+    open-on-output "DP-1"
+}
+
+window-rule {
+    match app-id="com.mitchellh.ghostty.floating"
+    open-floating true
+    default-column-width { fixed 800; }
+    default-window-height { fixed 500; }
+    shadow {
+        softness 30
+        spread 5
+        offset x=0 y=10
+        color "#00000070"
+    }
+}
+
+window-rule {
+    match app-id="^ghostty$"
+}
+
+window-rule {
+    match app-id="com.mitchellh.ghostty"
+}
+
+window-rule {
+    match app-id="app.zen_browser.zen"
+}
+
+layer-rule {
+    match namespace="^launcher$"
+}
