@@ -9,4 +9,6 @@
       defaultNetwork.settings.dns_enabled = true;
     };
   };
+
+  systemd.user.sockets.podman.wantedBy = [ "sockets.target" ];
 }

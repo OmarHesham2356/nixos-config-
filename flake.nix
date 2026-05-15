@@ -20,6 +20,11 @@
       url = "github:AvengeMedia/DankMaterialShell/stable";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    pi-mono = {
+      url = "github:lukasl-dev/pi-mono.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 outputs =
   {
@@ -28,12 +33,29 @@ outputs =
     home-manager,
     dms,
     LazyVim,
+    pi-mono,
   }@inputs:
+  let
+    pkgs = nixpkgs.legacyPackages.x86_64-linux;
+  in
   {
+    devShells.x86_64-linux.default = pkgs.mkShell {
+      buildInputs = with pkgs; [
+        docker-client
+        docker-compose
+      ];
+      shellHook = ''
+        export DOCKER_HOST="unix:///run/user/$UID/podman/podman.sock"
+        if ! systemctl --user is-active --quiet podman.socket 2>/dev/null; then
+          systemctl --user start podman.socket 2>/dev/null || echo "Run 'systemctl --user enable --now podman.socket' once for auto-start"
+        fi
+      '';
+    };
+
     nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       specialArgs = {
-        inherit inputs dms;
+        inherit inputs dms pi-mono;
       };
       modules = [
         ./hosts/nixos/configuration.nix
@@ -45,7 +67,7 @@ outputs =
       modules = [
         ./modules/users/omarnix/home-manager.nix
       ];
-      extraSpecialArgs = { inherit inputs dms; };
+      extraSpecialArgs = { inherit inputs dms pi-mono; };
     };
   };
 }

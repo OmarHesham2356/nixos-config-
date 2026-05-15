@@ -3,6 +3,7 @@
   pkgs,
   dms,
   inputs,
+  pi-mono,
   home-manager,
   lib,
   ...
@@ -35,13 +36,13 @@
   home-manager = {
     useGlobalPkgs = true;
     useUserPackages = true;
-    extraSpecialArgs = { inherit dms inputs; };
+    extraSpecialArgs = { inherit dms pi-mono inputs; };
     users.omarnix = import ../../modules/users/omarnix/home-manager.nix;
   };
 
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
-  boot.kernelPackages = pkgs.linuxPackages;
+  boot.kernelPackages = pkgs.linuxPackages_latest;
 
   swapDevices = [
     {

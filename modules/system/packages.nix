@@ -1,7 +1,9 @@
-{ config, pkgs, ... }:
+{ config, pkgs, pi-mono, ... }:
 
 {
   environment.systemPackages = with pkgs; [
+    pi-mono.packages.${pkgs.system}.default
+    docker-compose
     python313
     python313Packages.pip
     onlyoffice-desktopeditors
