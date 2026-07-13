@@ -36,7 +36,6 @@
 
       nodejs_22
       python3
-      python3Packages.pip
       go
       cargo
 
@@ -82,8 +81,6 @@
     initContent = ''
       alias lg='lazygit'
       alias xv6='podman start -ai xv6-debian'
-      export PATH="$HOME/.local/bin:$PATH"
-      export PATH="$HOME/.opencode/bin:$PATH"
       fastfetch
 
       # Pywal: source FZF colors if available
@@ -106,7 +103,7 @@
 
   programs.bat = {
     enable = true;
-    config.theme = "TwoDark";
+    # No theme set — inherits pywal colors from terminal
   };
 
   home.sessionVariables = {

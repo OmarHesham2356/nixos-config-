@@ -5,12 +5,11 @@
     pi-mono.packages.${pkgs.system}.default
     docker-compose
     python313
-    python313Packages.pip
     onlyoffice-desktopeditors
     baobab
     bat
     btop
-    config.boot.kernelPackages.nvidiaPackages.stable.bin
+    # nvidia driver is configured in nvidia.nix (production package)
     fastfetch
     fzf
     gh
@@ -43,22 +42,6 @@
     github-copilot-cli
     qbittorrent
     gearlever
-    (appimage-run.override {
-      extraPkgs = pkgs: with pkgs; [
-        pkgs.zstd
-        pkgs.nss
-        pkgs.nspr
-        pkgs.libxshmfence
-        pkgs.libXdamage
-        pkgs.libdrm
-        pkgs.mesa
-        pkgs.alsa-lib
-        pkgs.at-spi2-atk
-        pkgs.atk
-        pkgs.dbus
-        pkgs.expat
-      ];
-    })
     anki
     mediainfo
     nixd

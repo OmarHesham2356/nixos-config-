@@ -54,13 +54,5 @@ outputs =
         ./hosts/nixos/configuration.nix
       ];
     };
-    
-    homeConfigurations."omarnix@nixos" = home-manager.lib.homeManagerConfiguration {
-      pkgs = inputs.nixpkgs.legacyPackages.x86_64-linux;
-      modules = [
-        ./modules/users/omarnix/home-manager.nix
-      ];
-      extraSpecialArgs = { inherit inputs pi-mono; };
-    };
   };
 }

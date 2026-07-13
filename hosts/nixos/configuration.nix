@@ -72,7 +72,6 @@
 
   programs.zsh.enable = true;
   programs.firefox.enable = true;
-  programs.yazi.enable = true;
 
   # Hyprland
   programs.hyprland = {
@@ -86,10 +85,4 @@
   # Polkit for privilege escalation prompts
   security.polkit.enable = true;
 
-  users.users.omarnix = {
-    isNormalUser = true;
-    description = "omarnix";
-    extraGroups = [ "networkmanager" "wheel" "podman" ];
-    shell = pkgs.zsh;
-  };
 }

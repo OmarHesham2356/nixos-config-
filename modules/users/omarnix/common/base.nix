@@ -1,15 +1,16 @@
-{ lib, ... }:
+{ lib, pkgs, ... }:
 
 {
-  # User account definition
+  # User account definition — single source of truth
   users.users.omarnix = {
     isNormalUser = true;
     description = "omarnix";
     extraGroups = [
       "networkmanager"
       "wheel"
+      "podman"
     ];
-    packages = lib.mkDefault [];
+    shell = pkgs.zsh;
   };
 
   # Time zone
@@ -39,8 +40,14 @@
     "flakes"
   ];
   nix.settings = {
-    max-jobs = 1;
-    cores = 4;
+    auto-optimise-store = true;
+  };
+
+  # Automatic garbage collection
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 14d";
   };
 
   # State version
