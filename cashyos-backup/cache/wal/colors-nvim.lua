@@ -1,0 +1,26 @@
+return {
+  wallpaper = "/home/omarcash/Pictures/wallpapers/Pastel-Window.png",
+  special = {
+    background = "#121112",
+    foreground = "#c3c6c7",
+    cursor = "#c3c6c7",
+  },
+  colors = {
+    color0 = "#121112",
+    color8 = "#888a8b",
+    color1 = "#4F626A",
+    color9 = "#4F626A",
+    color2 = "#AD5E4A",
+    color10 = "#AD5E4A",
+    color3 = "#EB9B77",
+    color11 = "#EB9B77",
+    color4 = "#597984",
+    color12 = "#597984",
+    color5 = "#837E81",
+    color13 = "#837E81",
+    color6 = "#6D8C93",
+    color14 = "#6D8C93",
+    color7 = "#c3c6c7",
+    color15 = "#c3c6c7",
+  },
+}

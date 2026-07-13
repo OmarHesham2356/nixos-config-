@@ -1,0 +1,6 @@
+# NixOS config gitignore
+result
+result-*
+*.qcow2
+*.img
+*.iso

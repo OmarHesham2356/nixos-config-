@@ -1,0 +1,15 @@
+#!/bin/fish
+set pid_file /tmp/recording.pid
+
+if test -f "$pid_file"
+  set pid (cat "$pid_file")
+  kill -INT "$pid" 2>/dev/null
+  rm -f "$pid_file"
+  notify-send "Recording" "Stopped — saved to ~/Videos/"
+else
+  set filename "recording_"(date +%Y%m%d_%H%M%S)".mp4"
+  mkdir -p ~/Videos
+  wf-recorder -f ~/Videos/$filename &
+  echo $last_pid > "$pid_file"
+  notify-send "Recording" "Started — $filename"
+end

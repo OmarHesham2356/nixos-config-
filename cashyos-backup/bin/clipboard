@@ -1,0 +1,2 @@
+#!/bin/fish
+cliphist list | rofi -dmenu -p " Clipboard " -theme-str 'window {width: 600px;}' | cliphist decode | wl-copy

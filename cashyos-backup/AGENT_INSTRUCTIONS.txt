@@ -1,0 +1,345 @@
+# NixOS Migration: cashyos-backup Integration Plan
+## Target: Integrate Arch Hyprland config into NixOS
+
+## Overview
+This directory (`cashyos-backup/`) contains the fully-working Arch/Hyprland config from the user's previous system. The goal is to integrate these assets into the NixOS flake (`nixos-config-/`) using Nix and Home Manager. Cross-reference the existing flake.nix structure.
+
+---
+
+## Critical Decision: WM Choice
+The existing NixOS config uses **Niri** (Wayland compositor). The backup is from **Hyprland**. Choose ONE:
+- **A) Keep Niri**, port config patterns (keybinds, scripts, theming) to Niri KDL format
+- **B) Switch to Hyprland**, add Hyprland to the flake and port the hyprland.lua directly
+
+Recommendation: Ask the user which they prefer. Option B keeps all the work done on hyprland.lua intact.
+
+---
+
+## Migration Steps
+
+### 1. Pywal Theming Pipeline (Most Important)
+- Source: `config/wal/templates/` (8 template files)
+- These are Python `str.format()` templates that pywal processes against its generated colors
+- On NixOS:
+  - Install: `pkgs.pywal` (python-pywal, might be python311Packages.pywal)
+  - Place templates via `xdg.configFile."wal/templates".source`
+  - The user runs `wal -i /path/to/wallpaper` manually to regenerate
+  - Generated colors land in `~/.cache/wal/` — configs reference these via `source =`
+- For auto-theming on wallpaper change: create a `systemd.user` service watching the wallpaper dir, similar to the existing matugen watcher in the NixOS config
+- **Configs that source pywal-generated colors:**
+  - `hyprland.lua` → `dofile(os.getenv("HOME") .. "/.cache/wal/colors.lua")` (port this pattern)
+  - `hyprlock.conf` → `source = ~/.cache/wal/colors-hyprlock.conf`
+  - `waybar/style.css` → `@import` the generated CSS or use pywal colors directly
+  - `rofi/colors-rofi.rasi` → `@import` the generated rasi
+  - `nvim/plugins/pywal.lua` → reads generated lua
+  - `yazi/theme.toml` → generated from template
+  - `btop/themes/` → generated from template
+  - `cava/config` → generated from template
+
+### 2. Hyprland Config (if keeping Hyprland)
+- Source: `config/hypr/hyprland.lua`, `hyprlock.conf`, `hypridle.conf`
+- On NixOS: Use `programs.hyprland.enable = true` from nixpkgs
+- But note: hyprland.lua is Arch-native. On NixOS, hyprland config is typically in hyprland.conf (not Lua) or wrapped in Nix
+- Best approach via Nix:
+  ```nix
+  wayland.windowManager.hyprland = {
+    enable = true;
+    settings = {
+      # Port key hla->value pairs from hyprland.lua
+      monitor = ",1920x1080@120,0x0,1";
+      # ... etc
+    };
+    extraConfig = builtins.readFile ./cashyos-backup/config/hypr/hyprland.lua;  # May not work for Lua syntax
+  };
+  ```
+  Actually, since Hyprland 0.55+ uses Lua natively, on NixOS you might need to source the Lua file directly:
+  ```nix
+  xdg.configFile."hypr/hyprland.lua".source = ./cashyos-backup/config/hypr/hyprland.lua;
+  ```
+  But check if NixOS Hyprland supports Lua config files natively. The Nixpkgs Hyprland module might only accept `hyprland.conf` format.
+- **hyprlock.conf**: Use `xdg.configFile."hypr/hyprlock.conf".source`
+- **hypridle.conf**: Use `services.hypridle.settings` Nix module if available, or `xdg.configFile."hypr/hypridle.conf".source`
+
+### 3. Waybar
+- Source: `config/waybar/config.jsonc`, `config/waybar/style.css`
+- Use `programs.waybar` Home Manager module:
+  ```nix
+  programs.waybar = {
+    enable = true;
+    settings = builtins.fromJSON (builtins.readFile ./cashyos-backup/config/waybar/config.jsonc);
+    style = builtins.readFile ./cashyos-backup/config/waybar/style.css;
+  };
+  ```
+  Note: `config.jsonc` may fail `builtins.fromJSON` due to trailing commas/comments. Use `builtins.readFile` + `lib.removeSuffix` or convert to pure JSON first. Alternatively, set `xdg.configFile."waybar/config.jsonc".source`.
+- The `waybar-cava-git` AUR package (for Lua dispatch fix) is not on NixOS. Check if nixpkgs waybar already includes the fix (version >= 0.15.0), or patch the Nixpkgs waybar package.
+- Or simply switch to Niri's DMS bar if going with Niri.
+
+### 4. SwayNC
+- Source: `config/swaync/config.json`, `config/swaync/style.css`
+- NixOS: No native module. Use:
+  ```nix
+  xdg.configFile."swaync/config.json".source = ./cashyos-backup/config/swaync/config.json;
+  xdg.configFile."swaync/style.css".source = ./cashyos-backup/config/swaync/style.css;
+  ```
+- Package: `pkgs.swaynotificationcenter`
+
+### 5. Rofi
+- Source: `config/rofi/`
+- Use `programs.rofi` module or `xdg.configFile`:
+  ```nix
+  programs.rofi = {
+    enable = true;
+    theme = builtins.readFile ./cashyos-backup/config/rofi/pywal.rasi;
+    cycle = true;
+    extraConfig = {
+      hover-select = false;
+    };
+  };
+  xdg.configFile."rofi/colors-rofi.rasi".source = ./cashyos-backup/config/rofi/colors-rofi.rasi;
+  ```
+  But note: Rofi themes reference `colors-rofi.rasi` via `@import`, so both must be in the same directory. Best to put the whole dir via `xdg.configFile."rofi".source = ./cashyos-backup/config/rofi; recursive = true;`
+
+### 6. Kitty
+- Source: `config/kitty/`
+- Use `programs.kitty` module:
+  ```nix
+  programs.kitty = {
+    enable = true;
+    settings = {
+      font_family = "JetBrainsMono Nerd Font";
+      # ... port from kitty.conf
+    };
+    theme = "...";
+  };
+  ```
+  Or full config via `xdg.configFile."kitty/kitty.conf".source`
+
+### 7. Neovim
+- Source: `config/nvim/` (full LazyVim setup)
+- Use `programs.neovim`:
+  ```nix
+  programs.neovim = {
+    enable = true;
+    extraLuaConfig = builtins.readFile ...;
+  };
+  ```
+  But LazyVim is complex — best to use `xdg.configFile."nvim".source = ./cashyos-backup/config/nvim; recursive = true;`
+- Ensure all LSPs and tools are available via `home.packages`
+
+### 8. Yazi
+- Source: `config/yazi/`
+- Use `programs.yazi.enable = true` (NixOS module exists) plus:
+  ```nix
+  xdg.configFile."yazi/theme.toml".source = ./cashyos-backup/config/yazi/theme.toml;
+  xdg.configFile."yazi/keymap.toml".source = ./cashyos-backup/config/yazi/keymap.toml;
+  ```
+
+### 9. Cava
+- Source: `config/cava/`
+- Package: `pkgs.cava`
+- Config: `xdg.configFile."cava/config".source` and `xdg.configFile."cava/waybar.conf".source`
+- For waybar cava integration, the user needs `pipewire` and `pulseaudio` packages
+
+### 10. Btop
+- Source: `config/btop/`
+- Package: `pkgs.btop`
+- Config: `xdg.configFile."btop".source = ./cashyos-backup/config/btop; recursive = true;`
+- The `colors-btop.theme` is generated by pywal — needs to be in `~/.config/btop/themes/` or referenced correctly
+
+### 11. Custom Scripts
+- Source: `bin/` (17 scripts)
+- In Home Manager, create a package or use `home.packages`:
+  ```nix
+  home.packages = [
+    (pkgs.writeShellScriptBin "wallpaper" (builtins.readFile ./cashyos-backup/bin/wallpaper))
+    (pkgs.writeShellScriptBin "powermenu" (builtins.readFile ./cashyos-backup/bin/powermenu))
+    # ... one by one
+  ];
+  ```
+  Or use symlink via `home.file`:
+  ```nix
+  home.file."wallpaper".source = ./cashyos-backup/bin/wallpaper;
+  ```
+  But careful: scripts reference `~/.config/hypr/hyprland.lua`, `~/.cache/wal/`, etc. — update paths for NixOS.
+  Scripts that use `pactl`, `hyprctl`, `rofi`, `cliphist`, `wf-recorder`, `hyprpicker`, `playerctl`, etc. need those packages installed.
+
+### 12. Fish Shell
+- Source: `config/fish/`
+- Use `programs.fish.enable = true` in Home Manager
+- Place config via `xdg.configFile."fish".source`
+- Note: The existing NixOS config uses Zsh — either switch to Fish or keep Zsh and port aliases
+
+### 13. WirePlumber (Bluetooth)
+- Source: `config/wireplumber/`
+- Integrated via Nix:
+  ```nix
+  services.pipewire.wireplumber.configPackages = [ ./cashyos-backup/config/wireplumber ];
+  ```
+  Or place via `environment.etc` or `xdg.configFile`
+
+### 14. Fontconfig
+- Source: `config/fontconfig/fonts.conf`
+- Use Nix `fonts.fontconfig` module:
+  ```nix
+  fonts.fontconfig = {
+    enable = true;
+    defaultFonts = {
+      monospace = [ "JetBrainsMono Nerd Font" ];
+      sansSerif = [ "JetBrainsMono Nerd Font" "Noto Sans Arabic" ];
+      serif = [ "JetBrainsMono Nerd Font" "Noto Naskh Arabic" ];
+    };
+  };
+  ```
+  The custom oblique/embolden rules can be ported via `fonts.fontconfig.localConf`
+
+### 15. GTK
+- Source: `config/gtk-3.0/settings.ini`, `config/gtk-4.0/settings.ini`
+- Use Home Manager `gtk` module:
+  ```nix
+  gtk = {
+    enable = true;
+    theme = {
+      name = "adw-gtk3";
+      package = pkgs.adw-gtk3;
+    };
+    iconTheme = {
+      name = "Ant-Dark";
+      package = pkgs.ant-theme;  # may need to find correct package name
+    };
+    cursorTheme = {
+      name = "Oxygen_Zion";
+      package = pkgs.oxygen-cursors;  # check name
+    };
+    font = {
+      name = "JetBrainsMono Nerd Font";
+      size = 10;
+    };
+    gtk3.extraConfig = {
+      gtk-application-prefer-dark-theme = true;
+    };
+    gtk4.extraConfig = {
+      gtk-application-prefer-dark-theme = true;
+    };
+  };
+  ```
+
+---
+
+## Package Dependencies (from hyprland.lua autostart + scripts)
+Ensure these are in `environment.systemPackages` or `home.packages`:
+- hyprland, hyprlock, hypridle, hyprctl, hyprshot, hyprpicker
+- waybar, swaync, rofi, rofi-emoji
+- kitty, fish
+- pywal (python package)
+- awww, awww-daemon (for wallpaper setting)
+- cliphist, wl-clipboard
+- wf-recorder
+- playerctl
+- networkmanager, nmtui
+- brightnessctl
+- pavucontrol, wireplumber, pipewire, pulseaudio
+- blueman, bluez
+- power-profiles-daemon
+- cava
+- btop
+- yazi
+- thunderbird (for Thunar? actually thunar file manager)
+- imv (image viewer)
+- copyq (clipboard fallback)
+- vesktop (Discord)
+- ttf-jetbrains-mono-nerd, noto-fonts, noto-fonts-arabic
+- systemd
+
+---
+
+## Keybind Reference (Port to Niri KDL or Hyprland Nix)
+All from `hyprland.lua`:
+
+| Key | Action |
+|-----|--------|
+| SUPER + Return | kitty |
+| SUPER + E | kitty -e yazi |
+| SUPER + Q | kill active |
+| SUPER + D | rofi -show drun |
+| SUPER + SHIFT + D | rofi -show run |
+| SUPER + A | swaync-client -t -sw |
+| SUPER + V | cliphist list \| rofi -dmenu \| cliphist decode \| wl-copy |
+| SUPER + SHIFT + V | group toggle |
+| SUPER + F | fullscreen |
+| SUPER + SHIFT + F | toggle floating |
+| SUPER + G | group |
+| SUPER + SHIFT + G | group toggles |
+| SUPER + grave | scratchpad |
+| SUPER + Print | record-screen |
+| SUPER + SHIFT + W | web-search |
+| SUPER + SHIFT + N | kitty --class=nmtui -e nmtui |
+| SUPER + SHIFT + O | quick-notes |
+| SUPER + SHIFT + P | hyprpicker -a |
+| SUPER + period | rofi -show emoji |
+| SUPER + B | restart waybar |
+| SUPER + . (period) | rofi -show emoji |
+| Print | hyprshot -m output |
+| SHIFT + Print | hyprshot -m region |
+| CTRL + Print | hyprshot -m window |
+| XF86Audio* | playerctl/volume controls |
+| SUPER + left/right/up/down | focus direction |
+| SUPER + SHIFT + left/right/up/down | move window |
+| SUPER + 1-9 | workspace |
+| SUPER + SHIFT + 1-9 | move to workspace |
+| SUPER + TAB | workspace previous |
+| SUPER + mouse_down/up | next/prev workspace |
+| ALT + TAB | window next |
+| SUPER + l | lock (loginctl lock-session) |
+| CTRL + ALT + Delete | powermenu |
+
+---
+
+## NVIDIA on NixOS
+The current system has an NVIDIA GPU with `no_hardware_cursors = true` in hyprland.lua.
+On NixOS:
+```nix
+hardware.nvidia = {
+  modesetting.enable = true;
+  powerManagement.enable = false;
+  nvidiaSettings = true;
+  open = false;  # Use proprietary driver
+};
+```
+And set `env = LIBVA_DRIVER_NAME,nvidia` in Hyprland/Niri env.
+
+---
+
+## Bluetooth Audio
+The backup includes WirePlumber config for A2DP sink (AAC) with HSP/HFP disabled.
+On NixOS:
+```nix
+hardware.bluetooth = {
+  enable = true;
+  settings = {
+    General = {
+      Enable = "Source,Sink,Media,Socket";
+    };
+  };
+};
+services.pipewire.wireplumber.configPackages = [
+  (pkgs.writeTextDir "wireplumber.conf.d/51-bluetooth-a2dp.conf" (builtins.readFile ./cashyos-backup/config/wireplumber/wireplumber.conf.d/51-bluetooth-a2dp.conf))
+];
+```
+
+---
+
+## Initial Setup After NixOS Install
+1. `nixos-rebuild switch` to apply config
+2. Run `wal -i /path/to/wallpaper` to generate colors
+3. May need to restart hyprlock/waybar to pick up colors
+4. Test all binds and scripts
+5. If using pywal with rofi, verify `~/.cache/wal/colors-rofi.rasi` is generated correctly (the `@import` path must match)
+6. The `wallpaper` script handles hex→rgb conversion and multi-monitor — keep it as-is
+
+---
+
+## Notes
+- Pywal templates use `{{ }}` for literal braces (Python `str.format()` escaping)
+- The NixOS flake uses state version 25.11 — check compatibility
+- The old NixOS config used Matugen for theming — the backup uses Pywal. These are competing systems. Pick ONE.
+- If going with Niri (option A), many of the scripts (hyprctl commands) need to be adapted to Niri IPC

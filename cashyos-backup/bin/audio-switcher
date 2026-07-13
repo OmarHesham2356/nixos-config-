@@ -1,0 +1,34 @@
+#!/bin/fish
+
+set sinks (pactl list sinks short | awk '{print $2}')
+set current (pactl get-default-sink)
+set rofi_lines ""
+
+for s in $sinks
+  set desc (pactl list sinks | grep -A 20 "Name: $s" | grep "Description:" | sed 's/.*Description: //')
+  if test "$s" = "$current"
+    set rofi_lines "$rofi_lines\n  $desc  (current)"
+  else
+    set rofi_lines "$rofi_lines\n  $desc"
+  end
+end
+
+set selected (printf '%b' "$rofi_lines" | sed '1d' | rofi -dmenu -p " Audio Output " -i)
+if test -z "$selected"
+  exit
+end
+
+set chosen_desc (echo "$selected" | sed 's/  //' | sed 's/  (current)//')
+for s in $sinks
+  set desc (pactl list sinks | grep -A 20 "Name: $s" | grep "Description:" | sed 's/.*Description: //')
+  if test "$desc" = "$chosen_desc"
+    pactl set-default-sink "$s"
+    for i in (pactl list sink-inputs short | awk '{print $1}')
+      pactl move-sink-input "$i" "$s" 2>/dev/null
+    end
+    notify-send "Audio" "Switched to $desc"
+    exit 0
+  end
+end
+
+notify-send "Audio" "Error: no matching sink" -u critical

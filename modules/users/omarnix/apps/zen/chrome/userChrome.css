@@ -1,0 +1,78 @@
+/*
+ * Pywal theme for Zen Browser / Firefox
+ * Auto-generated — colors come from ~/.cache/wal/colors.json
+ * To enable: copy this to <profile>/chrome/userChrome.css
+ *   and set toolkit.legacyUserProfileCustomizations.stylesheets = true in about:config
+ */
+
+@import "colors.css";
+
+/* Dark toolbar */
+#navigator-toolbox {
+  background-color: var(--bg) !important;
+  border-bottom: 1px solid var(--color8) !important;
+}
+
+/* Tabs */
+.tab-background {
+  background-color: var(--bg) !important;
+  border: none !important;
+}
+
+.tab-background[selected="true"] {
+  background-color: var(--color8) !important;
+  border-bottom: 2px solid var(--accent) !important;
+}
+
+.tab-background:not([selected="true"]):hover {
+  background-color: var(--color0) !important;
+}
+
+.tab-label {
+  color: var(--fg) !important;
+}
+
+/* URL bar */
+#urlbar-background {
+  background-color: var(--color0) !important;
+  border: 1px solid var(--color8) !important;
+  border-radius: 8px !important;
+}
+
+#urlbar-input {
+  color: var(--fg) !important;
+}
+
+/* Sidebar */
+#sidebar-box {
+  background-color: var(--bg) !important;
+}
+
+#sidebar-header {
+  background-color: var(--color0) !important;
+  color: var(--fg) !important;
+}
+
+/* Menu panels */
+panelview,
+.panel-arrowcontent {
+  background-color: var(--bg) !important;
+  color: var(--fg) !important;
+}
+
+/* Popup menus */
+panel[type="arrow"] {
+  --panel-background: var(--bg) !important;
+  --panel-color: var(--fg) !important;
+  --panel-border-color: var(--color8) !important;
+}
+
+/* Scrollbars */
+ scrollbar {
+  background-color: var(--bg) !important;
+}
+
+scrollbar thumb {
+  background-color: var(--color8) !important;
+  border-radius: 4px !important;
+}

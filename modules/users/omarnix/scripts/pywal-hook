@@ -1,0 +1,253 @@
+#!/usr/bin/env bash
+# Pywal hook: generate color files for all apps from colors.json
+# This runs after every `wal` invocation (via the wal wrapper)
+
+WAL_JSON="$HOME/.cache/wal/colors.json"
+[ -f "$WAL_JSON" ] || exit 0
+
+# Generate all app-specific color files via Python
+python3 << 'PYEOF'
+import json, os, glob, shutil
+
+WAL_JSON = os.path.expanduser("~/.cache/wal/colors.json")
+if not os.path.exists(WAL_JSON):
+    exit(0)
+
+with open(WAL_JSON) as f:
+    c = json.load(f)
+s = c.get("special", {})
+a = c.get("colors", {})
+
+bg = s.get("background", "#1e1e2e")
+fg = s.get("foreground", "#cdd6f4")
+cursor = s.get("cursor", fg)
+wp = a.get("wallpaper", "")
+
+def h2r(h):
+    h = h.lstrip("#")
+    return tuple(int(h[i:i+2], 16) for i in (0, 2, 4))
+
+def rgba_raw(hex_color, alpha):
+    r, g, b = h2r(hex_color)
+    return f"{r},{g},{b},{alpha}"
+
+c0 = a.get("color0", "#1e1e2e")
+c1 = a.get("color1", "#f38ba8")
+c2 = a.get("color2", "#a6e3a1")
+c3 = a.get("color3", "#f9e2af")
+c4 = a.get("color4", "#89b4fa")
+c5 = a.get("color5", "#f5c2e7")
+c6 = a.get("color6", "#94e2d5")
+c7 = a.get("color7", "#bac2de")
+c8 = a.get("color8", "#585b70")
+c9 = a.get("color9", "#f38ba8")
+c12 = a.get("color12", "#89b4fa")
+c15 = a.get("color15", "#a6adc8")
+
+# ==================== HYPRLAND ====================
+lines = []
+lines.append(f"$wallpaper = {wp}")
+lines.append(f"$background = {bg}")
+lines.append(f"$foreground = {fg}")
+for i in range(16):
+    hexcolor = a.get(f"color{i}", "#000000")
+    lines.append(f"$color{i} = {hexcolor}")
+
+lines.append("")
+lines.append("# Pre-computed alpha values")
+lines.append(f"$color5cc = {rgba_raw(c5, 0.8)}")
+lines.append(f"$color4cc = {rgba_raw(c4, 0.8)}")
+lines.append(f"$color2cc = {rgba_raw(c2, 0.8)}")
+lines.append(f"$color800 = {rgba_raw(c8, 0.0)}")
+lines.append(f"$color077 = {rgba_raw(c0, 0.467)}")
+
+with open(os.path.expanduser("~/.cache/wal/colors-hyprland.conf"), "w") as f:
+    f.write("\n".join(lines) + "\n")
+
+# ==================== KITTY ====================
+klines = ["# Pywal Colors for Kitty", ""]
+klines.append(f"foreground              {fg}")
+klines.append(f"background              {bg}")
+klines.append(f"selection_foreground    {bg}")
+klines.append(f"selection_background    {fg}")
+klines.append(f"")
+klines.append(f"cursor                  {cursor}")
+klines.append(f"cursor_text_color       {bg}")
+klines.append(f"")
+klines.append(f"url_color               {cursor}")
+klines.append(f"")
+klines.append(f"active_tab_foreground   {c12}")
+klines.append(f"active_tab_background   {bg}")
+klines.append(f"inactive_tab_foreground {c8}")
+klines.append(f"inactive_tab_background {bg}")
+klines.append(f"")
+klines.append(f"mark1_foreground        {bg}")
+klines.append(f"mark1_background        {c4}")
+klines.append(f"mark2_foreground        {bg}")
+klines.append(f"mark2_background        {c12}")
+klines.append(f"mark3_foreground        {bg}")
+klines.append(f"mark3_background        {c2}")
+klines.append(f"")
+for i in range(16):
+    klines.append(f"color{i:<2} {a.get(f'color{i}', '#000000')}")
+
+with open(os.path.expanduser("~/.cache/wal/colors-kitty.conf"), "w") as f:
+    f.write("\n".join(klines) + "\n")
+
+# ==================== FZF ====================
+fzf_opts = (
+    f"--color=fg:{fg},bg:{bg}"
+    f" --color=hl:{c4}"
+    f" --color=fg+:{fg}"
+    f" --color=bg+:{c8}"
+    f" --color=hl+:{c12}"
+    f" --color=info:{c6}"
+    f" --color=prompt:{c5}"
+    f" --color=pointer:{c1}"
+    f" --color=marker:{c2}"
+    f" --color=spinner:{c3}"
+    f" --color=border:{c8}"
+    f" --color=header:{c4}"
+)
+
+with open(os.path.expanduser("~/.cache/wal/fzf-default-opts"), "w") as f:
+    f.write(fzf_opts)
+
+# ==================== TMUX ====================
+tmux_theme = f"""# Pywal tmux theme (auto-generated)
+set -g @wal_theme '1'
+
+# Status bar
+set -g status-style "bg={bg},fg={fg}"
+set -g status-position bottom
+set -g status-justify left
+set -g status-left-length 40
+set -g status-right-length 60
+
+# Left status
+set -g status-left "#[bg={c4},fg={bg},bold] #S #[bg={bg},fg={c4}] "
+
+# Right status
+set -g status-right "#[fg={c8}]%H:%M #[fg={c8}]| #[fg={c15}]%Y-%m-%d "
+
+# Window status
+setw -g window-status-format "#[fg={c8}] #I:#W "
+setw -g window-status-current-format "#[bg={c4},fg={bg},bold] #I:#W "
+setw -g window-status-separator ""
+
+# Pane borders
+set -g pane-border-style "fg={c8}"
+set -g pane-active-border-style "fg={c4}"
+
+# Messages
+set -g message-style "bg={c4},fg={bg}"
+
+# Clock
+setw -g clock-mode-colour "{c4}"
+setw -g clock-mode-style 24
+
+# Bell
+setw -g window-status-bell-style "bg={c1},fg={bg},bold"
+"""
+
+with open(os.path.expanduser("~/.config/tmux/theme.conf"), "w") as f:
+    f.write(tmux_theme)
+
+# ==================== NEOVIM ====================
+nvim_lines = ["return {"]
+nvim_lines.append(f'  wallpaper = "{wp}",')
+nvim_lines.append("  special = {")
+nvim_lines.append(f'    background = "{bg}",')
+nvim_lines.append(f'    foreground = "{fg}",')
+nvim_lines.append(f'    cursor = "{cursor}",')
+nvim_lines.append("  },")
+nvim_lines.append("  colors = {")
+for i in range(16):
+    hexcolor = a.get(f"color{i}", "#000000")
+    nvim_lines.append(f'    color{i} = "{hexcolor}",')
+nvim_lines.append("  },")
+nvim_lines.append("}")
+
+with open(os.path.expanduser("~/.cache/wal/colors-nvim.lua"), "w") as f:
+    f.write("\n".join(nvim_lines) + "\n")
+
+# ==================== FIREFOX/ZEN CSS ====================
+zen_chrome = os.path.expanduser("~/.cache/wal/colors.css")
+css_lines = ["/* Auto-generated by pywal hook - do not edit */"]
+css_lines.append(":root {")
+css_lines.append(f"  --bg: {bg};")
+css_lines.append(f"  --fg: {fg};")
+css_lines.append(f"  --accent: {c4};")
+for i in range(16):
+    css_lines.append(f"  --color{i}: {a.get(f'color{i}', '#000000')};")
+css_lines.append("}")
+
+with open(zen_chrome, "w") as f:
+    f.write("\n".join(css_lines) + "\n")
+
+# Copy to all zen/firefox profile chrome dirs if they exist
+for profile_dir in glob.glob(os.path.expanduser("~/.zen/*/chrome")) + \
+                   glob.glob(os.path.expanduser("~/.mozilla/firefox/*/chrome")):
+    css_target = os.path.join(profile_dir, "colors.css")
+    try:
+        shutil.copy2(zen_chrome, css_target)
+    except Exception:
+        pass
+
+# ==================== ZED EDITOR ====================
+zed_theme = {
+    "$schema": "https://zed.dev",
+    "name": "Pywal",
+    "author": "Pywal",
+    "themes": [
+        {
+            "name": "Pywal",
+            "appearance": "dark",
+            "style": {
+                "background": bg,
+                "text": fg,
+                "border": c8,
+                "element.background": bg,
+                "element.hover": c8,
+                "element.active": c1,
+                "element.selected": c2,
+                "status_bar.background": bg,
+                "title_bar.background": bg,
+                "toolbar.background": bg,
+                "tab_bar.background": bg,
+                "tab.active_background": c0,
+                "tab.inactive_background": bg,
+                "editor.background": bg,
+                "editor.gutter.background": bg,
+                "editor.subheader.background": bg,
+                "editor.line_number": c7,
+                "editor.active_line_number": c15,
+                "editor.active_line.background": c8 + "40",
+                "syntax": {
+                    "comment": {"color": c8, "font_style": "italic"},
+                    "string": {"color": c2},
+                    "string.special": {"color": c5},
+                    "keyword": {"color": c1, "font_weight": 700},
+                    "function": {"color": c4},
+                    "type": {"color": c3},
+                    "variant": {"color": c5},
+                    "property": {"color": c6},
+                    "operator": {"color": c7},
+                    "constant": {"color": c3},
+                    "number": {"color": c3},
+                    "boolean": {"color": c3},
+                },
+            },
+        }
+    ],
+}
+
+with open(os.path.expanduser("~/.cache/wal/zed.json"), "w") as f:
+    json.dump(zed_theme, f, indent=2)
+PYEOF
+
+# Reload hyprland
+hyprctl reload 2>/dev/null || true
+
+# Reload tmux theme
+tmux source-file ~/.config/tmux/theme.conf 2>/dev/null || true

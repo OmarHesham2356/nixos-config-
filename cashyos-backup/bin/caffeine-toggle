@@ -1,0 +1,14 @@
+#!/bin/fish
+set pid_file /tmp/caffeine.pid
+
+if test -f "$pid_file"
+  set pid (cat "$pid_file")
+  kill "$pid" 2>/dev/null
+  rm -f "$pid_file"
+  notify-send "Caffeine" "☕ Disabled — suspend allowed"
+else
+  nohup systemd-inhibit --what=sleep --mode=block --who=Caffeine --why="Manual caffeine" sleep infinity > /dev/null 2>&1 &
+  disown
+  echo $last_pid > "$pid_file"
+  notify-send "Caffeine" "☕ Enabled — suspend blocked"
+end

@@ -1,0 +1,129 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+WALLPAPER_DIR="$HOME/Pictures/wallpapers"
+
+usage() {
+  cat <<EOF
+Usage: wallpaper [options]
+
+Options:
+  -i, --interactive   Pick a wallpaper using imv/image preview
+  -r, --random        Pick a random wallpaper
+  -p, --previous      Restore previous wallpaper
+  -h, --help          Show this help
+
+Without options, picks a random wallpaper.
+EOF
+  exit 0
+}
+
+random_wallpaper() {
+  find "$WALLPAPER_DIR" -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' -o -iname '*.bmp' \) | shuf -n 1
+}
+
+hex2rgb() {
+  local h="${1#\#}"
+  printf "%d, %d, %d" 0x"${h:0:2}" 0x"${h:2:2}" 0x"${h:4:2}"
+}
+
+set_wallpaper() {
+  local img="$1"
+  if [[ ! -f "$img" ]]; then
+    notify-send "wallpaper" "File not found: $img"
+    exit 1
+  fi
+
+  echo "$img" > "$HOME/.cache/wallpaper.prev"
+
+  wal -i "$img" -q 2>/dev/null || true
+
+  # Convert pywal hex colors to rgb/rgba for hyprlock
+  local WAL_JSON="$HOME/.cache/wal/colors.json"
+  local HYPRLOCK_COLORS="$HOME/.cache/wal/colors-hyprlock.conf"
+  if [[ -f "$WAL_JSON" ]]; then
+    python3 -c "
+import json
+with open('$WAL_JSON') as f:
+    c = json.load(f)
+s = c.get('special', {})
+a = c.get('colors', {})
+
+def h2r(h):
+    h = h.lstrip('#')
+    return tuple(int(h[i:i+2], 16) for i in (0, 2, 4))
+
+lines = ['# Pywal colors for hyprlock']
+for name, hexcolor in [('bg', s.get('background', '#000000')), ('fg', s.get('foreground', '#ffffff'))]:
+    r, g, b = h2r(hexcolor)
+    lines.append(f'\${name} = rgb({r}, {g}, {b})')
+    lines.append(f'\${name}a = rgba({r}, {g}, {b}, 0.8)')
+
+for i in range(16):
+    hexcolor = a.get(f'color{i}', '#000000')
+    r, g, b = h2r(hexcolor)
+    lines.append(f'\$c{i} = rgb({r}, {g}, {b})')
+    lines.append(f'\$c{i}a = rgba({r}, {g}, {b}, 0.8)')
+
+with open('$HYPRLOCK_COLORS', 'w') as f:
+    f.write('\n'.join(lines) + '\n')
+" 2>&1 || true
+  fi
+
+  # Copy btop theme
+  cp "$HOME/.cache/wal/colors-btop.theme" "$HOME/.config/btop/themes/pywal.theme"
+
+  # Detect Wayland env for non-interactive shells (yazi, rofi, etc.)
+  : "${HYPRLAND_INSTANCE_SIGNATURE:=$(hyprctl instances -j | python3 -c "import json,sys; d=json.load(sys.stdin); print(d[0]['instance'] if d else '')" 2>/dev/null || true)}"
+  if [[ -z "${WAYLAND_DISPLAY:-}" ]]; then
+    WAYLAND_DISPLAY=$(find "$XDG_RUNTIME_DIR" -maxdepth 1 -name 'wayland-*' ! -name '*awww*' ! -name '*.lock' ! -name '*.sock' -printf '%f\n' 2>/dev/null | head -1)
+    WAYLAND_DISPLAY="${WAYLAND_DISPLAY:-wayland-0}"
+  fi
+  export HYPRLAND_INSTANCE_SIGNATURE WAYLAND_DISPLAY
+
+  # Set wallpaper
+  awww img "$img" --transition-type fade --transition-duration 2
+
+  # Refresh apps
+  killall -SIGUSR2 waybar 2>/dev/null || true
+  killall -SIGUSR1 swaync 2>/dev/null || true
+  # Refresh rofi theme symlink (in case pywal re-created it)
+  ln -sf "$HOME/.cache/wal/colors-rofi.rasi" "$HOME/.config/rofi/colors-rofi.rasi"
+
+  notify-send "wallpaper" "$(basename "$img")"
+}
+
+case "${1:-}" in
+  -i|--interactive)
+    img=$(random_wallpaper)
+    set_wallpaper "$img"
+    ;;
+  -r|--random|"")
+    img=$(random_wallpaper)
+    set_wallpaper "$img"
+    ;;
+  -p|--previous)
+    if [[ -f "$HOME/.cache/wallpaper.prev" ]]; then
+      prev=$(cat "$HOME/.cache/wallpaper.prev")
+      if [[ -f "$prev" ]]; then
+        set_wallpaper "$prev"
+      else
+        notify-send "wallpaper" "Previous wallpaper not found"
+        exit 1
+      fi
+    else
+      notify-send "wallpaper" "No previous wallpaper"
+      exit 1
+    fi
+    ;;
+  -h|--help)
+    usage
+    ;;
+  *)
+    if [[ -f "$1" ]]; then
+      set_wallpaper "$1"
+    else
+      usage
+    fi
+    ;;
+esac

@@ -1,0 +1,2 @@
+#!/bin/fish
+test (powerprofilesctl get) = "power-saver"; and echo true; or echo false

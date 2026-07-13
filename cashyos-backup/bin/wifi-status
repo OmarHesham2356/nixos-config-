@@ -1,0 +1,2 @@
+#!/bin/fish
+test (nmcli radio wifi) = "enabled"; and echo true; or echo false

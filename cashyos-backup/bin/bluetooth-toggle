@@ -1,0 +1,9 @@
+#!/bin/fish
+rfkill list bluetooth 2>/dev/null | grep -q "Soft blocked: no"
+if test $status -eq 0
+  rfkill block bluetooth
+  notify-send "Bluetooth" "Off"
+else
+  rfkill unblock bluetooth
+  notify-send "Bluetooth" "On"
+end

@@ -1,0 +1,4 @@
+#!/bin/fish
+set notes_file ~/notes.md
+touch "$notes_file"
+kitty --class notes -e nvim "$notes_file"

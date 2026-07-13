@@ -1,0 +1,101 @@
+configuration {
+  modi: "drun,run,window";
+  show-icons: true;
+  icon-theme: "Papirus-Dark";
+  display-drun: "   ";
+  display-run: "   ";
+  display-window: "   ";
+  drun-display-format: "{icon} {name}";
+  window-format: "{c} · {t}";
+  disable-history: false;
+  hover-select: false;
+  matching: "fuzzy";
+  click-to-exit: true;
+  terminal: "kitty";
+  font: "JetBrainsMono Nerd Font 12";
+}
+
+@import "colors-rofi.rasi"
+
+* {
+  background-color: transparent;
+}
+
+window {
+  location: center;
+  anchor: center;
+  fullscreen: false;
+  width: 520px;
+  border-radius: 16px;
+  border: 2px solid;
+  padding: 12px;
+  cursor: "default";
+}
+
+mainbox {
+  spacing: 10px;
+  padding: 0;
+  background-color: transparent;
+  children: [ inputbar, listview ];
+}
+
+inputbar {
+  spacing: 8px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  children: [ icon-search, entry ];
+}
+
+icon-search {
+  expand: false;
+  size: 20px;
+  str: "  ";
+}
+
+entry {
+  placeholder: "Search...";
+  cursor: text;
+  font: "JetBrainsMono Nerd Font 12";
+}
+
+listview {
+  spacing: 4px;
+  padding: 4px 0;
+  lines: 8;
+  columns: 1;
+  cycle: true;
+  dynamic: true;
+  scrollbar: false;
+  layout: vertical;
+  cursor: "default";
+}
+
+element {
+  padding: 10px 14px;
+  border-radius: 10px;
+  background-color: transparent;
+  cursor: "pointer";
+}
+
+element-icon {
+  size: 24px;
+  padding: 0 8px 0 0;
+}
+
+element-text {
+  vertical-align: 0.5;
+  horizontal-align: 0.0;
+  cursor: "pointer";
+}
+
+scrollbar {
+  handle-width: 4px;
+  border-radius: 2px;
+}
+
+button {
+  padding: 6px 12px;
+  border-radius: 8px;
+  background-color: transparent;
+  cursor: "pointer";
+}

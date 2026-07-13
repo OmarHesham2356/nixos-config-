@@ -1,0 +1,9 @@
+#!/bin/fish
+nmcli radio wifi | grep -q "enabled"
+if test $status -eq 0
+  nmcli radio wifi off
+  notify-send "WiFi" "Off"
+else
+  nmcli radio wifi on
+  notify-send "WiFi" "On"
+end

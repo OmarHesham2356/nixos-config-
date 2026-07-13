@@ -1,0 +1,2 @@
+#!/bin/fish
+rfkill list bluetooth 2>/dev/null | grep -q "Soft blocked: no"; and echo true; or echo false

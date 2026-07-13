@@ -1,0 +1,8 @@
+#!/bin/fish
+set current (powerprofilesctl get)
+switch "$current"
+  case power-saver
+    powerprofilesctl set balanced
+  case '*'
+    powerprofilesctl set power-saver
+end

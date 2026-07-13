@@ -1,0 +1,13 @@
+#!/bin/bash
+hyprctl devices -j | /usr/bin/python3 -c "
+import json, sys
+data = json.load(sys.stdin)
+for k in data.get('keyboards', []):
+    if 'translated' in k.get('name', ''):
+        km = k.get('active_keymap', '')
+        if 'US' in km:
+            print('US')
+        else:
+            print(km)
+        break
+"

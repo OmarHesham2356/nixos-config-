@@ -1,0 +1,21 @@
+set $wallpaper /home/omarcash/Pictures/wallpapers/Pastel-Window.png
+
+set $background #121112
+set $foreground #c3c6c7
+
+set $color0 #121112
+set $color1 #4F626A
+set $color2 #AD5E4A
+set $color3 #EB9B77
+set $color4 #597984
+set $color5 #837E81
+set $color6 #6D8C93
+set $color7 #c3c6c7
+set $color8 #888a8b
+set $color9 #4F626A
+set $color10 #AD5E4A
+set $color11 #EB9B77
+set $color12 #597984
+set $color13 #837E81
+set $color14 #6D8C93
+set $color15 #c3c6c7

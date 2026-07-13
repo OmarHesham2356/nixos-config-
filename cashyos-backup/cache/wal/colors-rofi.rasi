@@ -1,0 +1,41 @@
+* {
+    background-color: #121112;
+    text-color: #c3c6c7;
+}
+
+window {
+    background-color: #121112;
+    border-color: #837E81;
+}
+
+inputbar {
+    background-color: #121112;
+}
+
+element selected {
+    background-color: #837E81;
+    text-color: #121112;
+}
+
+element normal.urgent,
+element alternate.urgent,
+element selected.urgent {
+    background-color: #4F626A;
+    text-color: #121112;
+}
+
+element normal.active,
+element alternate.active,
+element selected.active {
+    background-color: #837E81;
+    text-color: #121112;
+}
+
+scrollbar {
+    handle-color: #837E81;
+}
+
+button selected {
+    background-color: #837E81;
+    text-color: #121112;
+}

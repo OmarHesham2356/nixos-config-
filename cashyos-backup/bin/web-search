@@ -1,0 +1,5 @@
+#!/bin/fish
+set query (rofi -dmenu -p "   Search " -theme-str 'window {width: 500px;}')
+if test -n "$query"
+  firefox "https://duckduckgo.com/?q=$query" &
+end
