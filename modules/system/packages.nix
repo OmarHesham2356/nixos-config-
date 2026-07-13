@@ -88,13 +88,15 @@
     # Minecraft (cracked/offline — PrismLauncher-Cracked)
     # prismlauncher-cracked.packages.${pkgs.system}.default
 
-    # Fonts
+    # Cursor themes
+    bibata-cursors
+  ];
+
+  # Fonts — must use fonts.packages for fontconfig registration
+  fonts.packages = with pkgs; [
     nerd-fonts.jetbrains-mono
     noto-fonts
     noto-fonts-cjk-sans
     noto-fonts-color-emoji
-
-    # Cursor themes
-    bibata-cursors
   ];
 }
