@@ -59,14 +59,8 @@
     variant = "";
   };
 
-  # GDM display manager with Wayland
-  services.displayManager.gdm = {
-    enable = true;
-    wayland = true;
-  };
-
-  # GNOME as fallback for debugging
-  services.desktopManager.gnome.enable = true;
+  # GDM display manager
+  services.displayManager.gdm.enable = true;
 
   nixpkgs.config.allowUnfree = true;
 

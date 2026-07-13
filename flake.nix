@@ -19,6 +19,11 @@
       url = "github:lukasl-dev/pi-mono.nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    prismlauncher-cracked = {
+      url = "github:Diegiwg/PrismLauncher-Cracked";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 outputs =
   {
@@ -27,6 +32,7 @@ outputs =
     home-manager,
     LazyVim,
     pi-mono,
+    prismlauncher-cracked,
   }@inputs:
   let
     pkgs = nixpkgs.legacyPackages.x86_64-linux;
@@ -52,6 +58,20 @@ outputs =
       };
       modules = [
         ./hosts/nixos/configuration.nix
+        # PrismLauncher-Cracked overlay + fix for removed KDE5 extra-cmake-modules alias
+        {
+          nixpkgs.overlays = [
+            (final: prev: {
+              extra-cmake-modules = prev.kdePackages.extra-cmake-modules;
+            })
+            prismlauncher-cracked.overlays.default
+            (final: prev: {
+              prismlauncher-unwrapped = prev.prismlauncher-unwrapped.overrideAttrs (old: {
+                nativeBuildInputs = (old.nativeBuildInputs or []) ++ [ prev.pkg-config ];
+              });
+            })
+          ];
+        }
       ];
     };
   };

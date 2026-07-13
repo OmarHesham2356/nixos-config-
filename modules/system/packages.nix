@@ -3,6 +3,7 @@
 {
   environment.systemPackages = with pkgs; [
     pi-mono.packages.${pkgs.system}.default
+    prismlauncher
     docker-compose
     python313
     onlyoffice-desktopeditors
@@ -84,8 +85,8 @@
     # Pywal
     python3Packages.pywal
 
-    # Minecraft
-    hmcl
+    # Minecraft (cracked/offline — PrismLauncher-Cracked)
+    # prismlauncher-cracked.packages.${pkgs.system}.default
 
     # Fonts
     nerd-fonts.jetbrains-mono
