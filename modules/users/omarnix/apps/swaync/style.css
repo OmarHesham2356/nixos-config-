@@ -3,6 +3,7 @@
 * {
   font-family: JetBrainsMono Nerd Font;
   font-size: 13px;
+  color: @foreground;
 }
 
 .control-center {
@@ -24,6 +25,7 @@
   border: 1px solid alpha(@color5, 0.3);
   border-radius: 12px;
   padding: 8px;
+  color: @foreground;
 }
 
 .notification-content {
