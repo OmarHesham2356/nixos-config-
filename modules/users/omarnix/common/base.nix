@@ -9,6 +9,8 @@
       "networkmanager"
       "wheel"
       "podman"
+      "lp"       # CUPS printing
+      "scanner"  # SANE scanning
     ];
     shell = pkgs.zsh;
   };
