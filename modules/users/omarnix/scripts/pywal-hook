@@ -244,6 +244,89 @@ zed_theme = {
 
 with open(os.path.expanduser("~/.cache/wal/zed.json"), "w") as f:
     json.dump(zed_theme, f, indent=2)
+
+# ==================== OPENCODE ====================
+opencode_theme = {
+    "$schema": "https://opencode.ai/theme.json",
+    "defs": {
+        "pw_bg": bg,
+        "pw_fg": fg,
+        "pw_cursor": cursor,
+        "pw_black": c0,
+        "pw_red": c1,
+        "pw_green": c2,
+        "pw_yellow": c3,
+        "pw_blue": c4,
+        "pw_magenta": c5,
+        "pw_cyan": c6,
+        "pw_white": c7,
+        "pw_bright_black": c8,
+        "pw_bright_red": a.get("color9", c1),
+        "pw_bright_green": a.get("color10", c2),
+        "pw_bright_yellow": a.get("color11", c3),
+        "pw_bright_blue": c12,
+        "pw_bright_magenta": a.get("color13", c5),
+        "pw_bright_cyan": a.get("color14", c6),
+        "pw_bright_white": c15,
+    },
+    "theme": {
+        "primary": {"dark": "pw_bright_blue", "light": "pw_blue"},
+        "secondary": {"dark": "pw_cyan", "light": "pw_cyan"},
+        "accent": {"dark": "pw_bright_magenta", "light": "pw_magenta"},
+        "error": {"dark": "pw_red", "light": "pw_red"},
+        "warning": {"dark": "pw_yellow", "light": "pw_yellow"},
+        "success": {"dark": "pw_green", "light": "pw_green"},
+        "info": {"dark": "pw_bright_cyan", "light": "pw_cyan"},
+        "text": {"dark": "pw_fg", "light": "pw_bg"},
+        "textMuted": {"dark": "pw_bright_black", "light": "pw_white"},
+        "background": {"dark": "pw_bg", "light": "pw_fg"},
+        "backgroundPanel": {"dark": "pw_black", "light": "pw_white"},
+        "backgroundElement": {"dark": "pw_black", "light": "pw_bright_white"},
+        "border": {"dark": "pw_bright_black", "light": "pw_white"},
+        "borderActive": {"dark": "pw_bright_blue", "light": "pw_blue"},
+        "borderSubtle": {"dark": "pw_bright_black", "light": "pw_white"},
+        "diffAdded": {"dark": "pw_green", "light": "pw_green"},
+        "diffRemoved": {"dark": "pw_red", "light": "pw_red"},
+        "diffContext": {"dark": "pw_bright_black", "light": "pw_white"},
+        "diffHunkHeader": {"dark": "pw_bright_black", "light": "pw_white"},
+        "diffHighlightAdded": {"dark": "pw_bright_green", "light": "pw_green"},
+        "diffHighlightRemoved": {"dark": "pw_bright_red", "light": "pw_red"},
+        "diffAddedBg": {"dark": "pw_bg", "light": "pw_fg"},
+        "diffRemovedBg": {"dark": "pw_bg", "light": "pw_fg"},
+        "diffContextBg": {"dark": "pw_black", "light": "pw_white"},
+        "diffLineNumber": {"dark": "pw_bright_black", "light": "pw_white"},
+        "diffAddedLineNumberBg": {"dark": "pw_black", "light": "pw_white"},
+        "diffRemovedLineNumberBg": {"dark": "pw_black", "light": "pw_white"},
+        "markdownText": {"dark": "pw_fg", "light": "pw_bg"},
+        "markdownHeading": {"dark": "pw_bright_blue", "light": "pw_blue"},
+        "markdownLink": {"dark": "pw_cyan", "light": "pw_cyan"},
+        "markdownLinkText": {"dark": "pw_bright_cyan", "light": "pw_cyan"},
+        "markdownCode": {"dark": "pw_green", "light": "pw_green"},
+        "markdownBlockQuote": {"dark": "pw_bright_black", "light": "pw_white"},
+        "markdownEmph": {"dark": "pw_yellow", "light": "pw_yellow"},
+        "markdownStrong": {"dark": "pw_bright_yellow", "light": "pw_yellow"},
+        "markdownHorizontalRule": {"dark": "pw_bright_black", "light": "pw_white"},
+        "markdownListItem": {"dark": "pw_bright_blue", "light": "pw_blue"},
+        "markdownListEnumeration": {"dark": "pw_bright_cyan", "light": "pw_cyan"},
+        "markdownImage": {"dark": "pw_magenta", "light": "pw_magenta"},
+        "markdownImageText": {"dark": "pw_bright_magenta", "light": "pw_magenta"},
+        "markdownCodeBlock": {"dark": "pw_fg", "light": "pw_bg"},
+        "syntaxComment": {"dark": "pw_bright_black", "light": "pw_white"},
+        "syntaxKeyword": {"dark": "pw_red", "light": "pw_red"},
+        "syntaxFunction": {"dark": "pw_bright_blue", "light": "pw_blue"},
+        "syntaxVariable": {"dark": "pw_bright_magenta", "light": "pw_magenta"},
+        "syntaxString": {"dark": "pw_green", "light": "pw_green"},
+        "syntaxNumber": {"dark": "pw_yellow", "light": "pw_yellow"},
+        "syntaxType": {"dark": "pw_cyan", "light": "pw_cyan"},
+        "syntaxOperator": {"dark": "pw_bright_red", "light": "pw_red"},
+        "syntaxPunctuation": {"dark": "pw_fg", "light": "pw_bg"},
+    },
+}
+
+opencode_dir = os.path.expanduser("~/.config/opencode/themes")
+os.makedirs(opencode_dir, exist_ok=True)
+with open(os.path.join(opencode_dir, "pywal.json"), "w") as f:
+    json.dump(opencode_theme, f, indent=2)
 PYEOF
 
 # Reload hyprland

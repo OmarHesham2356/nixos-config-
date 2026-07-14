@@ -88,15 +88,15 @@
         {
           "label": " Power Save",
           "type": "toggle",
-          "command": "/home/omarnix/.local/bin/power-save-toggle",
-          "update-command": "/home/omarnix/.local/bin/power-save-status",
+          "command": "/etc/profiles/per-user/omarnix/bin/power-save-toggle",
+          "update-command": "/etc/profiles/per-user/omarnix/bin/power-save-status",
           "active": false
         },
         {
           "label": "☕ Caffeine",
           "type": "toggle",
-          "command": "/home/omarnix/.local/bin/caffeine-toggle",
-          "update-command": "/home/omarnix/.local/bin/caffeine-status",
+          "command": "/etc/profiles/per-user/omarnix/bin/caffeine-toggle",
+          "update-command": "/etc/profiles/per-user/omarnix/bin/caffeine-status",
           "active": false
         }
       ]

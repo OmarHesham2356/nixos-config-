@@ -52,6 +52,7 @@
 
   # Blacklist nouveau so nvidia proprietary driver loads
   boot.blacklistedKernelModules = [ "nouveau" ];
+  boot.supportedFilesystems = [ "ntfs" ];
 
   services.xserver.enable = true;
   services.xserver.xkb = {
