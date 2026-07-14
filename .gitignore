@@ -4,6 +4,3 @@ result-*
 *.qcow2
 *.img
 *.iso
-
-# Secrets (never commit)
-secrets/

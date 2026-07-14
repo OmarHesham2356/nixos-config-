@@ -1,7 +1,9 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 let
-  secretKey = builtins.readFile ../../secrets/searxng-secret-key.txt;
+  # Generate a deterministic secret from hostname + service name
+  # For a local-only service (127.0.0.1), this is sufficient for CSRF protection
+  secretKey = builtins.hashString "sha256" "searxng-${config.networking.hostName}-csrf-key";
 in
 {
   services.searx = {
