@@ -47,6 +47,7 @@
     mediainfo
     nixd
     ouch
+    simple-scan
     vnstat
     steam-run
     tmux
