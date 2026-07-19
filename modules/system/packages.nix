@@ -28,6 +28,7 @@
     mysql-workbench
     mermaid-cli
     nil
+    nix-search-tv
     nix-tree
     nixpkgs-fmt
     ntfs3g
@@ -49,6 +50,7 @@
     ouch
     simple-scan
     vnstat
+    nh
     steam-run
     tmux
     tree
@@ -62,6 +64,13 @@
     zsh-syntax-highlighting
     p7zip
     unrar
+
+    # Wine
+    wineWow64Packages.stable
+    winetricks
+
+    # MangoHud (overlay for gamescope)
+    mangohud
 
     # Hyprland ecosystem
     hyprshot

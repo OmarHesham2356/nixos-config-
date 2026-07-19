@@ -74,10 +74,26 @@
     xwayland.enable = true;
   };
 
+  # Gamescope
+  programs.gamescope = {
+    enable = true;
+    capSysNice = false;
+  };
+
   services.upower.enable = true;
   services.power-profiles-daemon.enable = true;
 
   # Polkit for privilege escalation prompts
   security.polkit.enable = true;
+
+  # dconf service — lets GTK apps read theme settings from gsettings
+  programs.dconf.enable = true;
+
+  # XDG Desktop Portals — lets GTK apps query system configuration
+  xdg.portal = {
+    enable = true;
+    extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
+    config.common.default = "*";
+  };
 
 }

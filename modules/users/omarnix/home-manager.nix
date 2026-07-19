@@ -108,7 +108,7 @@
 
   home.sessionVariables = {
     SHELL = "/run/current-system/profile/bin/zsh";
-    GTK_THEME = "adw-gtk3-dark";
+    GTK_THEME = "Adwaita-dark";
   };
 
   # ============================================================================
@@ -125,7 +125,7 @@
         "XCURSOR_THEME, Bibata-Modern-Ice"
         "XCURSOR_SIZE, 24"
         "HYPRCURSOR_SIZE, 24"
-        "GTK_THEME, adw-gtk3-dark"
+        "GTK_THEME, Adwaita-dark"
       ];
 
       general = {
@@ -715,12 +715,12 @@
   gtk = {
     enable = true;
     theme = {
-      name = "adw-gtk3-dark";
-      package = pkgs.adw-gtk3;
+      name = "Adwaita-dark";
+      package = pkgs.gnome-themes-extra;
     };
     gtk4.theme = {
-      name = "adw-gtk3-dark";
-      package = pkgs.adw-gtk3;
+      name = "Adwaita-dark";
+      package = pkgs.gnome-themes-extra;
     };
     font = {
       name = "Noto Sans";
@@ -736,12 +736,7 @@
       "gtk-cursor-theme-name" = "Bibata-Modern-Ice";
       "gtk-cursor-theme-size" = 24;
     };
-    gtk3.extraCss = ''
-      @import url("file://${config.xdg.cacheHome}/wal/colors-gtk.css");
-    '';
-    gtk4.extraCss = ''
-      @import url("file://${config.xdg.cacheHome}/wal/colors-gtk.css");
-    '';
+
   };
 
   # ============================================================================

@@ -20,6 +20,9 @@ in
   };
   services.pulseaudio.enable = false;
 
+  # pactl/paplay needed by Steam pressure-vessel container for audio setup
+  environment.systemPackages = [ pkgs.pulseaudio ];
+
   # Fix Dell SOF ALSA mixer defaults (Speaker 0%, Headphone muted)
   systemd.user.services.alsa-fix = {
     description = "Fix ALSA mixer defaults for Dell SOF";
