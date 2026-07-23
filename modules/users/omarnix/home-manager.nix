@@ -51,6 +51,7 @@
   xdg.configFile."nvim" = {
     source = ./apps/nvim;
     recursive = true;
+    force = true;
   };
 
   # ============================================================================
@@ -81,7 +82,44 @@
     initContent = ''
       alias lg='lazygit'
       alias xv6='podman start -ai xv6-debian'
+
+      # NixOS
+      alias rebuild='nh os switch'
+      alias update='cd ~/nixos && nix flake update && nh os switch'
+      alias gc='nh clean all'
+      alias nixlog='sudo nixos-rebuild switch --flake /etc/nixos#nixos --fallback 2>&1 | tail -20'
+      alias nixsearch='nix-search-tv print | fzf --preview "nix-search-tv preview {}" --scheme history'
+      alias nixedit='sudoedit /etc/nixos'
+
+      # Git
+      alias gs='git status'
+      alias gp='git push'
+      alias gl='git pull'
+      alias gaa='git add -A'
+      alias gcm='git commit -m'
+
+      # Taskwarrior
+      alias ta='task add'
+      alias tl='task list'
+      alias td='task done'
+      alias tw='task wait:'
+      alias tr='task modify'
+      alias tx='task delete'
+      alias tt='task summary'
+      alias tp='task projects'
+
+      # Quick access
+      alias ..='cd ..'
+      alias ...='cd ../..'
+      alias ls='eza --icons'
+      alias ll='eza -lah --icons --git'
+      alias lt='eza -lah --icons --tree --level=2'
+      alias ports='ss -tlnp'
+
       fastfetch
+
+      # Zoxide (smarter cd)
+      eval "$(zoxide init zsh)"
 
       # Pywal: source FZF colors if available
       [[ -f "$HOME/.cache/wal/fzf-default-opts" ]] && export FZF_DEFAULT_OPTS="$(cat "$HOME/.cache/wal/fzf-default-opts") --height=80% --layout=reverse"
@@ -93,6 +131,10 @@
       zstyle ':fzf-tab:*' switch-group '<' '>'
       zstyle ':fzf-tab:*' fzf-command ftb-tmux-popup
       zstyle ':fzf-tab:*' fzf-flags --height=80% --layout=reverse --border --margin=10%,20% --preview-window=right:50%
+
+      # Taskwarrior zsh completion
+      compdef _task ta tl td tw tr tx tt tp
+      compdef _task task
     '';
   };
 
@@ -103,7 +145,9 @@
 
   programs.bat = {
     enable = true;
-    # No theme set — inherits pywal colors from terminal
+    config = {
+      theme = "pywal";
+    };
   };
 
   home.sessionVariables = {
@@ -411,6 +455,7 @@
 
       # Autostart
       exec-once = [
+        "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"
         "awww-daemon"
         "swaync"
         "wl-paste --watch cliphist store"
@@ -776,9 +821,11 @@
     (writeShellScriptBin "wifi-toggle" (builtins.readFile ./scripts/wifi-toggle))
 
     # wal wrapper: shadows system wal so every invocation runs the pywal-hook
-    # for correct hyprland/kitty color generation with alpha variants
-    (pkgs.writeShellScriptBin "wal" ''
-      ${pkgs.python3Packages.pywal}/bin/wal "$@"
+    # colorthief backend works without imagemagick
+    (let
+      walPython = pkgs.python3.withPackages (ps: with ps; [ pywal16 colorthief ]);
+    in pkgs.writeShellScriptBin "wal" ''
+      ${walPython}/bin/wal --backend colorthief "$@"
       WAL_EXIT=$?
       HOOK="$HOME/.config/wal/scripts/pywal-hook"
       [ -x "$HOOK" ] && "$HOOK" 2>/dev/null || true
@@ -982,6 +1029,127 @@ KITTYEOF
     # Yazi extra configs (mkForce to override module-generated files)
     "yazi/yazi.toml".source = lib.mkForce ./apps/yazi/yazi.toml;
     "yazi/keymap.toml".source = lib.mkForce ./apps/yazi/keymap.toml;
+
+    # Fastfetch config — tree layout with Nerd Font icons
+    "fastfetch/config.jsonc" = {
+      force = true;
+      text = ''
+        {
+          "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/master/doc/json_schema.json",
+          "logo": {
+            "type": "small",
+            "padding": { "top": 1, "left": 1, "right": 1 }
+          },
+          "display": {
+            "separator": " ",
+            "percent": { "type": 3, "color": { "green": 30, "yellow": 60 } },
+            "bar": { "width": 15, "char": { "elapsed": "█", "total": "░" } }
+          },
+          "modules": [
+            {
+              "type": "custom",
+              "format": "{#green}  󰌢 System{#}",
+              "outputColor": "green"
+            },
+            {
+              "type": "os",
+              "key": "{#green}├─{icon}{#}",
+              "keyColor": "green",
+              "format": "{name} {version}"
+            },
+            {
+              "type": "host",
+              "key": "{#green}├─󰌢{#}",
+              "keyColor": "green"
+            },
+            {
+              "type": "kernel",
+              "key": "{#green}├─{icon}{#}",
+              "keyColor": "green"
+            },
+            {
+              "type": "uptime",
+              "key": "{#green}├─󰅐{#}",
+              "keyColor": "green"
+            },
+            {
+              "type": "packages",
+              "key": "{#green}╰─󰏖{#}",
+              "keyColor": "green"
+            },
+            "break",
+            {
+              "type": "custom",
+              "format": "{#blue}  󰍛 Hardware{#}",
+              "outputColor": "blue"
+            },
+            {
+              "type": "cpu",
+              "key": "{#blue}├─󰻠{#}",
+              "keyColor": "blue",
+              "format": "{name} ({cores-physical}C/{cores-logical}T)"
+            },
+            {
+              "type": "gpu",
+              "key": "{#blue}├─󰍛{#}",
+              "keyColor": "blue"
+            },
+            {
+              "type": "memory",
+              "key": "{#blue}├─󰑭{#}",
+              "keyColor": "blue",
+              "format": "{used} / {total} {percentage-bar}"
+            },
+            {
+              "type": "disk",
+              "key": "{#blue}├─{icon}{#}",
+              "keyColor": "blue",
+              "format": "{size-used} / {size-total} [{size-percentage}]",
+              "folders": "/"
+            },
+            {
+              "type": "battery",
+              "key": "{#blue}╰─{icon}{#}",
+              "keyColor": "blue",
+              "format": "{capacity} {capacity-bar}"
+            },
+            "break",
+            {
+              "type": "custom",
+              "format": "{#yellow}   Desktop{#}",
+              "outputColor": "yellow"
+            },
+            {
+              "type": "wm",
+              "key": "{#yellow}├─{icon}{#}",
+              "keyColor": "yellow"
+            },
+            {
+              "type": "terminal",
+              "key": "{#yellow}├─{icon}{#}",
+              "keyColor": "yellow"
+            },
+            {
+              "type": "shell",
+              "key": "{#yellow}╰─{icon}{#}",
+              "keyColor": "yellow"
+            },
+            "break",
+            {
+              "type": "custom",
+              "format": "{#magenta}   Tasks{#}",
+              "outputColor": "magenta"
+            },
+            {
+              "type": "command",
+              "key": "{#magenta}╰─{#}",
+              "keyColor": "magenta",
+              "text": "count=$(task status:pending count 2>/dev/null); if [ \"$count\" -gt 0 ]; then echo \"$count pending\"; task rc.verbose:blank limit:3 status:pending 2>/dev/null | tail -n +2 | sed 's/^/    /'; else echo \"none pending\"; fi"
+            }
+          ]
+        }
+      '';
+    };
 
     # Pywal templates
     "wal/templates/colors-hyprland.conf".source = ./apps/wal/templates/colors-hyprland.conf;

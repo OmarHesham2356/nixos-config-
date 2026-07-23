@@ -48,7 +48,13 @@
     mediainfo
     nixd
     ouch
-    simple-scan
+    (kdePackages.skanlite.overrideAttrs (oldAttrs: {
+      postInstall = (oldAttrs.postInstall or "") + ''
+        mkdir -p $out/share/applications
+        substituteInPlace $out/share/applications/org.kde.skanlite.desktop \
+          --replace-fail "Exec=skanlite" "Exec=env SANE_CONFIG_DIR=/etc/sane-config LD_LIBRARY_PATH=/etc/sane-libs skanlite"
+      '';
+    }))
     vnstat
     nh
     steam-run
@@ -64,6 +70,30 @@
     zsh-syntax-highlighting
     p7zip
     unrar
+
+    # Media
+    mpv
+    yt-dlp
+    imagemagick
+
+    # Graphics
+    gimp
+
+    # Documents
+    zathura
+
+    # File managers
+    xfce.thunar
+    xfce.thunar-volman
+
+    # System tools
+    lm_sensors
+    gpu-screen-recorder
+    zoxide
+    eza
+
+    # Polkit agent for privilege escalation prompts
+    polkit_gnome
 
     # Wine
     wineWow64Packages.stable
@@ -91,7 +121,7 @@
     wlogout
     awww
     libnotify
-
+    taskwarrior3
     # Pywal
     python3Packages.pywal
 
