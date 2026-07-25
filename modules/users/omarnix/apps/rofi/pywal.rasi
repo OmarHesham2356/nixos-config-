@@ -1,101 +1,128 @@
 configuration {
-  modi: "drun,run,window";
-  show-icons: true;
-  icon-theme: "Papirus-Dark";
-  display-drun: "   ";
-  display-run: "   ";
-  display-window: "   ";
+  modi:                "drun,run,window";
+  show-icons:          true;
+  icon-theme:          "Papirus-Dark";
+  display-drun:        " Apps";
+  display-run:         " Run";
+  display-window:      " Windows";
   drun-display-format: "{icon} {name}";
-  window-format: "{c} · {t}";
-  disable-history: false;
-  hover-select: false;
-  matching: "fuzzy";
-  click-to-exit: true;
-  terminal: "kitty";
-  font: "JetBrainsMono Nerd Font 12";
+  window-format:       "{w} - {t}";
+  disable-history:     false;
+  click-to-exit:       true;
+  terminal:            "kitty";
+  font:                "JetBrainsMono Nerd Font 11";
+  matching:            "fuzzy";
 }
-
-@import "~/.config/rofi/colors-rofi.rasi"
 
 * {
   background-color: transparent;
+  text-color:       #c0c1c3;
 }
 
 window {
-  location: center;
-  anchor: center;
-  fullscreen: false;
-  width: 520px;
-  border-radius: 16px;
-  border: 2px solid;
-  padding: 12px;
-  cursor: "default";
+  location:         center;
+  anchor:           center;
+  width:            32%;
+  background-color: rgba(6,10,15,0.37);
+  border:           0;
+  border-radius:    14px;
+  padding:          16px;
 }
 
 mainbox {
-  spacing: 10px;
-  padding: 0;
   background-color: transparent;
-  children: [ inputbar, listview ];
+  spacing:          10px;
+  children:         [ inputbar, listview ];
 }
 
 inputbar {
-  spacing: 8px;
-  padding: 10px 14px;
-  border-radius: 10px;
-  children: [ icon-search, entry ];
+  background-color: rgba(255,255,255,0.14);
+  border-radius:    999px;
+  padding:          8px 16px;
+  spacing:          10px;
+  children:         [ prompt, entry ];
 }
 
-icon-search {
-  expand: false;
-  size: 20px;
-  str: "  ";
+prompt {
+  background-color: transparent;
+  text-color:       #889caf;
+  padding:          0 4px 0 0;
 }
 
 entry {
-  placeholder: "Search...";
-  cursor: text;
-  font: "JetBrainsMono Nerd Font 12";
+  background-color: transparent;
+  text-color:       #c0c1c3;
+  placeholder:      "Search...";
+  placeholder-color: rgba(255,255,255,0.45);
+  cursor:           text;
+  expand:           true;
 }
 
 listview {
-  spacing: 4px;
-  padding: 4px 0;
-  lines: 8;
-  columns: 1;
-  cycle: true;
-  dynamic: true;
-  scrollbar: false;
-  layout: vertical;
-  cursor: "default";
+  background-color: transparent;
+  columns:          1;
+  lines:            6;
+  cycle:            true;
+  dynamic:          true;
+  fixed-height:     false;
+  layout:           vertical;
+  spacing:          4px;
+  scrollbar:        false;
 }
 
 element {
-  padding: 10px 14px;
-  border-radius: 10px;
+  orientation:      horizontal;
+  children:         [ element-icon, element-text ];
+  padding:          8px 12px;
+  border-radius:    8px;
   background-color: transparent;
-  cursor: "pointer";
 }
 
 element-icon {
-  size: 24px;
-  padding: 0 8px 0 0;
+  background-color: transparent;
+  size:             1.2em;
 }
 
 element-text {
-  vertical-align: 0.5;
-  horizontal-align: 0.0;
-  cursor: "pointer";
-}
-
-scrollbar {
-  handle-width: 4px;
-  border-radius: 2px;
-}
-
-button {
-  padding: 6px 12px;
-  border-radius: 8px;
   background-color: transparent;
-  cursor: "pointer";
+  text-color:       inherit;
+  expand:           true;
+  vertical-align:   0.5;
 }
+
+element normal.normal,
+element alternate.normal {
+  background-color: transparent;
+  text-color:       #c0c1c3;
+}
+
+element selected.normal {
+  background-color: #889caf;
+  text-color:       #060a0f;
+}
+
+element normal.urgent,
+element alternate.urgent {
+  background-color: transparent;
+  text-color:       #060a0f;
+}
+
+element selected.urgent {
+  background-color: #224349;
+  text-color:       #060a0f;
+}
+
+element normal.active,
+element alternate.active {
+  background-color: transparent;
+  text-color:       #060a0f;
+}
+
+element selected.active {
+  background-color: #73574d;
+  text-color:       #060a0f;
+}
+
+scrollbar { enabled: false; }
+message   { background-color: transparent; }
+textbox   { background-color: transparent; text-color: #c0c1c3; }

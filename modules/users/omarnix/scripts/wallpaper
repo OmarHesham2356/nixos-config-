@@ -297,7 +297,6 @@ with open('$HOME/.cache/wal/colors-kitty.conf', 'w') as f:
 
   # Symlink pywal color files for apps
   mkdir -p "$HOME/.config/rofi"
-  ln -sf "$HOME/.cache/wal/colors-rofi.rasi" "$HOME/.config/rofi/colors-rofi.rasi"
 
   mkdir -p "$HOME/.config/kitty"
   ln -sf "$HOME/.cache/wal/colors-kitty.conf" "$HOME/.config/kitty/colors-kitty.conf"

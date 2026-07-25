@@ -336,10 +336,10 @@
         "SUPER, J, layoutmsg, togglesplit"
 
         # Apps
-        "SUPER, R, exec, rofi -show drun"
-        "SUPER SHIFT, R, exec, rofi -show run"
+        "SUPER, R, exec, rofi -show drun -theme ~/.cache/wal/rofi-theme.rasi"
+        "SUPER SHIFT, R, exec, rofi -show run -theme ~/.cache/wal/rofi-theme.rasi"
         "SUPER, L, exec, hyprlock"
-        "SUPER, V, exec, clipboard"
+        "SUPER, V, exec, cliphist list | rofi -dmenu -show clipboard -p ' ' -theme ~/.cache/wal/rofi-theme.rasi | cliphist decode | wl-copy"
         "SUPER SHIFT, A, exec, audio-switcher"
         "SUPER, A, exec, swaync-client -t"
         "SUPER, Tab, workspace, previous"
@@ -351,7 +351,7 @@
         "SUPER SHIFT, W, exec, web-search"
         "SUPER SHIFT, N, exec, kitty --class=nmtui -e nmtui"
         "SUPER SHIFT, O, exec, quick-notes"
-        "SUPER, period, exec, rofi -show emoji"
+        "SUPER, period, exec, rofi -show emoji -theme ~/.cache/wal/rofi-theme.rasi"
         "SUPER SHIFT, P, exec, hyprpicker -a"
 
         # Group
@@ -450,6 +450,8 @@
         "ignore_alpha 0, match:namespace swaync-control-center"
         "blur on, match:namespace swaync-notification-window"
         "ignore_alpha 0, match:namespace swaync-notification-window"
+        "blur on, match:namespace rofi"
+        "ignore_alpha 0, match:namespace rofi"
         "order 9999, match:namespace copyq"
       ];
 
@@ -691,7 +693,6 @@
     enable = true;
     cycle = true;
     terminal = "kitty";
-    theme = "pywal";
   };
 
   # ============================================================================
@@ -996,10 +997,6 @@ KITTYEOF
     # === yazi theme symlink ===
     rm -f "$HOME/.config/yazi/theme.toml"
     ln -sf "$HOME/.cache/wal/colors-yazi.toml" "$HOME/.config/yazi/theme.toml"
-
-    # === rofi colors symlink ===
-    rm -f "$HOME/.config/rofi/colors-rofi.rasi"
-    ln -sf "$HOME/.cache/wal/colors-rofi.rasi" "$HOME/.config/rofi/colors-rofi.rasi"
   '';
 
   # ============================================================================
@@ -1156,7 +1153,6 @@ KITTYEOF
     "wal/templates/colors-hyprlock-vars.conf".source = ./apps/wal/templates/colors-hyprlock-vars.conf;
     "wal/templates/colors.lua".source = ./apps/wal/templates/colors.lua;
     "wal/templates/colors-nvim.lua".source = ./apps/wal/templates/colors-nvim.lua;
-    "wal/templates/colors-rofi.rasi".source = ./apps/wal/templates/colors-rofi.rasi;
     "wal/templates/colors-btop.theme".source = ./apps/wal/templates/colors-btop.theme;
     "wal/templates/colors-cava.conf".source = ./apps/wal/templates/colors-cava.conf;
     "wal/templates/colors-yazi.toml".source = ./apps/wal/templates/colors-yazi.toml;
@@ -1176,9 +1172,6 @@ KITTYEOF
     # Hyprland configs
     "hypr/hypridle.conf".source = ./apps/hypr/hypridle.conf;
     "hypr/hyprlock.conf".source = ./apps/hypr/hyprlock.conf;
-
-    # Rofi colors (symlinked to pywal output by activation + wallpaper script)
-    "rofi/colors-rofi.rasi".source = lib.mkForce (config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.cache/wal/colors-rofi.rasi");
 
     # Rofi pywal theme
     "rofi/pywal.rasi".source = ./apps/rofi/pywal.rasi;
