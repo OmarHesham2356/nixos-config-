@@ -7,6 +7,9 @@
 }:
 
 {
+  imports = [
+    inputs.noctalia.homeModules.default
+  ];
   # Required home-manager state version
   home.stateVersion = "25.11";
   home.username = "omarnix";
@@ -150,9 +153,29 @@
     };
   };
 
+  # ============================================================================
+  # NOCTALIA SHELL
+  # ============================================================================
+  programs.noctalia = {
+    enable = true;
+    settings = {
+      theme = {
+        mode = "dark";
+        source = "builtin";
+        builtin = "Catppuccin";
+      };
+      wallpaper = {
+        enabled = true;
+        default.path = "/home/omarnix/Pictures/wallpapers/default.jpg";
+      };
+    };
+  };
+
   home.sessionVariables = {
     SHELL = "/run/current-system/profile/bin/zsh";
     GTK_THEME = "Adwaita-dark";
+    NIXOS_OZONE_WL = "1";
+    MOZ_ENABLE_WAYLAND = "1";
   };
 
   # ============================================================================
@@ -161,6 +184,10 @@
   wayland.windowManager.hyprland = {
     enable = true;
     xwayland.enable = true;
+    # System xdg.portal already provides KDE+GTK+hyprland portals (hosts/nixos/configuration.nix).
+    # Home-manager's portal module otherwise exports NIX_XDG_DESKTOP_PORTAL_DIR to a profile dir
+    # containing ONLY hyprland.portal, hiding the KDE/GTK portal defs and breaking ScreenCast.
+    portalPackage = null;
     configType = "hyprlang";
 
     settings = {
@@ -331,28 +358,26 @@
         "SUPER, M, exit"
         "SUPER, E, exec, kitty -e yazi"
         "SUPER, F, fullscreen"
-        "SUPER, Space, togglefloating"
         "SUPER, P, pseudo"
         "SUPER, J, layoutmsg, togglesplit"
 
         # Apps
-        "SUPER, R, exec, rofi -show drun -theme ~/.cache/wal/rofi-theme.rasi"
-        "SUPER SHIFT, R, exec, rofi -show run -theme ~/.cache/wal/rofi-theme.rasi"
-        "SUPER, L, exec, hyprlock"
-        "SUPER, V, exec, cliphist list | rofi -dmenu -show clipboard -p ' ' -theme ~/.cache/wal/rofi-theme.rasi | cliphist decode | wl-copy"
+        "SUPER, Space, exec, noctalia msg panel-toggle launcher"
+        "SUPER, L, exec, noctalia msg session lock"
+        "SUPER, V, exec, noctalia msg panel-toggle clipboard"
         "SUPER SHIFT, A, exec, audio-switcher"
-        "SUPER, A, exec, swaync-client -t"
+        "SUPER, A, exec, noctalia msg panel-toggle control-center"
         "SUPER, Tab, workspace, previous"
         "SUPER, S, exec, hyprshot -m region"
         "SUPER SHIFT, S, exec, hyprshot -m window"
-        "SUPER, B, exec, systemctl --user restart waybar"
         "SUPER, grave, exec, scratchpad"
         "SUPER, Print, exec, record-screen"
         "SUPER SHIFT, W, exec, web-search"
         "SUPER SHIFT, N, exec, kitty --class=nmtui -e nmtui"
         "SUPER SHIFT, O, exec, quick-notes"
-        "SUPER, period, exec, rofi -show emoji -theme ~/.cache/wal/rofi-theme.rasi"
+        "SUPER, period, exec, noctalia msg panel-toggle launcher"
         "SUPER SHIFT, P, exec, hyprpicker -a"
+        "ALT, Tab, exec, noctalia msg window-switcher"
 
         # Group
         "SUPER SHIFT, V, moveintogroup, l"
@@ -403,16 +428,13 @@
       ];
 
       # Locked binds (media keys)
-      bindel = [
-        ", XF86AudioRaiseVolume, exec, wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+"
-        ", XF86AudioLowerVolume, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"
-        ", XF86MonBrightnessUp, exec, brightnessctl set 5%+"
-        ", XF86MonBrightnessDown, exec, brightnessctl set 5%-"
-      ];
-
       bindl = [
-        ", XF86AudioMute, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
+        ", XF86AudioRaiseVolume, exec, noctalia msg volume-up"
+        ", XF86AudioLowerVolume, exec, noctalia msg volume-down"
+        ", XF86AudioMute, exec, noctalia msg volume-mute"
         ", XF86AudioMicMute, exec, wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"
+        ", XF86MonBrightnessUp, exec, noctalia msg brightness-up"
+        ", XF86MonBrightnessDown, exec, noctalia msg brightness-down"
         ", XF86AudioNext, exec, playerctl next"
         ", XF86AudioPrev, exec, playerctl previous"
         ", XF86AudioPlay, exec, playerctl play-pause"
@@ -440,193 +462,26 @@
         "workspace special:scratchpad on, float on, match:class ^(scratchpad)$"
         "float on, match:class ^(notes)$"
         "float on, match:class ^(nmtui)$"
+        "float on, size 1080 920, match:class ^(dev.noctalia.Noctalia)$"
       ];
 
       # Layer rules
       layerrule = [
-        "no_anim on, match:namespace waybar"
-        "blur on, match:namespace waybar"
-        "blur on, match:namespace swaync-control-center"
-        "ignore_alpha 0, match:namespace swaync-control-center"
-        "blur on, match:namespace swaync-notification-window"
-        "ignore_alpha 0, match:namespace swaync-notification-window"
-        "blur on, match:namespace rofi"
-        "ignore_alpha 0, match:namespace rofi"
+        "no_anim on, match:namespace ^noctalia-(bar-.+|notification|dock|panel|attached-panel|osd|window-switcher)$"
+        "ignore_alpha 0.5, match:namespace ^noctalia-(bar-.+|notification|dock|panel|attached-panel|osd|window-switcher)$"
+        "blur on, match:namespace ^noctalia-(bar-.+|notification|dock|panel|attached-panel|osd|window-switcher)$"
         "order 9999, match:namespace copyq"
       ];
 
       # Autostart
       exec-once = [
         "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"
-        "awww-daemon"
-        "swaync"
+        "noctalia"
         "wl-paste --watch cliphist store"
-        "hypridle"
         "blueman-applet"
+        "swaync"
       ];
     };
-  };
-
-  # ============================================================================
-  # WAYBAR
-  # ============================================================================
-  programs.waybar = {
-    enable = true;
-    systemd.enable = true;
-    settings = {
-      mainBar = {
-        layer = "top";
-        position = "top";
-        height = 28;
-        spacing = 4;
-
-        modules-left = [ "hyprland/workspaces" "mpris" "cava" ];
-        modules-center = [ "clock" ];
-        modules-right = [ "custom/cpu" "custom/memory" "pulseaudio" "backlight" "hyprland/language" "network" "battery" "power-profiles-daemon" "tray" "custom/power" ];
-
-        "hyprland/workspaces" = {
-          format = "{icon}";
-          move-to-monitor = true;
-          on-click = "activate";
-          sort-by-number = true;
-          format-icons = {
-            "1" = "1";
-            "2" = "2";
-            "3" = "3";
-            "4" = "4";
-            "5" = "5";
-            "6" = "6";
-            "7" = "7";
-            "8" = "8";
-            "9" = "9";
-            "10" = "10";
-            "urgent" = "!";
-          };
-          persistent-workspaces = {
-            "DP-1" = [ 1 2 3 4 5 ];
-            "eDP-1" = [ 6 7 8 9 10 ];
-          };
-        };
-
-        "mpris" = {
-          format = "{player_icon} {dynamic}";
-          "format-paused" = "{status_icon} <i>{dynamic}</i>";
-          status-icons = { paused = "⏸"; };
-          player-icons = { default = "▶"; };
-          "artist-len" = 15;
-          "title-len" = 25;
-          "album-len" = 12;
-          "dynamic-len" = 35;
-          on-click = "playerctl play-pause";
-          "on-click-right" = "playerctl next";
-          "on-click-middle" = "playerctl previous";
-        };
-
-        cava = {
-          "cava_config" = "${config.home.homeDirectory}/.config/cava/waybar.conf";
-          "input_delay" = 2;
-          "format-icons" = [ "▁" "▂" "▃" "▄" "▅" "▆" "▇" "█" ];
-          actions = {
-            "on-click-middle" = "mode";
-          };
-        };
-
-        clock = {
-          format = "{:%I:%M %p}";
-          "format-alt" = "{:%a %b %d}";
-          "tooltip-format" = "{:%A, %B %d, %Y}";
-          interval = 30;
-          calendar = {
-            format = {
-              today = "<span color='@color4'><b><u>{}</u></b></span>";
-            };
-          };
-        };
-
-        pulseaudio = {
-          format = "{icon} {volume}%";
-          "format-muted" = "{icon} M";
-          "format-icons" = {
-            default = [ "󰕿" "󰖀" "󰕾" ];
-          };
-          on-click = "pavucontrol";
-          "scroll-step" = 5;
-        };
-
-        network = {
-          "format-wifi" = "󰤨 {signalStrength}%";
-          "format-ethernet" = "󰤨";
-          "format-disconnected" = "󰤭";
-          "tooltip-format" = "{ifname} via {gwaddr}";
-          interval = 30;
-        };
-
-        battery = {
-          states = {
-            warning = 20;
-            critical = 10;
-          };
-          format = "{icon} {capacity}%";
-          "format-charging" = "󰂃 {capacity}%";
-          "format-plugged" = "󰂃 {capacity}%";
-          "format-icons" = [ "󰁺" "󰁻" "󰁼" "󰁽" "󰁾" ];
-          "tooltip-format" = "{timeTo} {power}";
-        };
-
-        "hyprland/language" = {
-          format = "{}";
-          "format-en" = "US";
-          "format-ar" = "AR";
-          "on-click" = "hyprctl switchxkblayout 0 next";
-        };
-
-        backlight = {
-          format = "☀ {percent}%";
-          "scroll-step" = 5;
-          "on-scroll-up" = "brightnessctl set 5%+";
-          "on-scroll-down" = "brightnessctl set 5%-";
-        };
-
-        "custom/cpu" = {
-          format = "󰍛 {}%";
-          tooltip = false;
-          interval = 5;
-          exec = "grep '^cpu ' /proc/stat | awk '{print int((\\$2+\\$4)*100/(\\$2+\\$4+\\$5))}'";
-          "exec-if" = "true";
-        };
-
-        "custom/memory" = {
-          format = "󰀽 {}%";
-          tooltip = false;
-          interval = 10;
-          exec = "free | awk '/^Mem/ {printf \"%.0f\", \\$3/\\$2 * 100}'";
-          "exec-if" = "true";
-        };
-
-        "power-profiles-daemon" = {
-          format = "{icon}";
-          "tooltip-format" = "{profile}";
-          "format-icons" = {
-            default = "󰂚";
-            performance = "󰓅";
-            balanced = "󰂎";
-            "power-saver" = "󰌪";
-          };
-        };
-
-        tray = {
-          "icon-size" = 16;
-          spacing = 4;
-        };
-
-        "custom/power" = {
-          format = "⏻";
-          on-click = "powermenu";
-          tooltip = false;
-        };
-      };
-    };
-    style = builtins.readFile ./apps/waybar/style.css;
   };
 
   # ============================================================================
@@ -687,15 +542,6 @@
   };
 
   # ============================================================================
-  # ROFI
-  # ============================================================================
-  programs.rofi = {
-    enable = true;
-    cycle = true;
-    terminal = "kitty";
-  };
-
-  # ============================================================================
   # YAZI
   # ============================================================================
   programs.yazi = {
@@ -732,6 +578,22 @@
       tmux source-file ~/.config/tmux/theme.conf 2>/dev/null || true
     '';
     executable = true;
+  };
+
+  # swaync should only run inside Hyprland (started via Hyprland exec-once), NOT in KDE Plasma.
+  # Otherwise it grabs org.freedesktop.Notifications and breaks KDE's notification service.
+  # Override the packaged systemd unit so it never auto-starts via graphical-session.target.
+  systemd.user.services.swaync = {
+    Unit = {
+      Description = "swaync (only started from Hyprland)";
+      PartOf = "hyprland-session.target";
+    };
+    Service = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      ExecStart = "/run/current-system/sw/bin/true";
+    };
+    Install.WantedBy = [ ];
   };
 
   xdg.configFile."systemd/user/tmux-theme-watcher.path".text = ''
@@ -892,11 +754,11 @@ $color12 = #89b4fa
 $color13 = #f5c2e7
 $color14 = #94e2d5
 $color15 = #a6adc8
-$color5cc = f5c2e7,0.8
-$color4cc = 89b4fa,0.8
-$color2cc = a6e3a1,0.8
-$color800 = 585b70,0.0
-$color077 = 1e1e2e,0.467
+$color5cc = f5c2e7cc
+$color4cc = 89b4facc
+$color2cc = a6e3a1cc
+$color800 = 585b7000
+$color077 = 1e1e2e77
 HYPREOF
     fi
 
@@ -1003,13 +865,6 @@ KITTYEOF
   # XDG CONFIG FILES
   # ============================================================================
   xdg.configFile = {
-    # Waybar config (JSONC - symlink raw file)
-    "waybar/config.jsonc".source = ./apps/waybar/config.jsonc;
-
-    # SwayNC
-    "swaync/config.json".source = ./apps/swaync/config.json;
-    "swaync/style.css".source = ./apps/swaync/style.css;
-
     # Btop
     "btop" = {
       source = ./apps/btop;
@@ -1168,13 +1023,6 @@ KITTYEOF
     # Fontconfig
     "fontconfig/fonts.conf".source = ./apps/fontconfig/fonts.conf;
     "fontconfig/conf.d/60-arabic-fallback.conf".source = ./apps/fontconfig/conf.d/60-arabic-fallback.conf;
-
-    # Hyprland configs
-    "hypr/hypridle.conf".source = ./apps/hypr/hypridle.conf;
-    "hypr/hyprlock.conf".source = ./apps/hypr/hyprlock.conf;
-
-    # Rofi pywal theme
-    "rofi/pywal.rasi".source = ./apps/rofi/pywal.rasi;
 
     # Zed editor pywal theme (generated by pywal-hook)
     "zed/themes/pywal.json".source = lib.mkForce (config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.cache/wal/zed.json");

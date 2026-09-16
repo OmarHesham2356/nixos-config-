@@ -15,25 +15,32 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    pi-mono = {
-      url = "github:lukasl-dev/pi-mono.nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
 
     prismlauncher-cracked = {
       url = "github:Diegiwg/PrismLauncher-Cracked";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    noctalia = {
+      url = "github:noctalia-dev/noctalia";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    windscribe-nixos = {
+      url = "github:Varmisanth/windscribe-nixos";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
-outputs =
-  {
-    self,
-    nixpkgs,
-    home-manager,
-    LazyVim,
-    pi-mono,
-    prismlauncher-cracked,
-  }@inputs:
+  outputs =
+    {
+      self,
+      nixpkgs,
+      home-manager,
+      LazyVim,
+      prismlauncher-cracked,
+      noctalia,
+      windscribe-nixos,
+    }@inputs:
   let
     pkgs = nixpkgs.legacyPackages.x86_64-linux;
   in
@@ -53,11 +60,12 @@ outputs =
 
     nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
-      specialArgs = {
-        inherit inputs pi-mono;
-      };
+      specialArgs = {inherit inputs; };
+        
+      
       modules = [
         ./hosts/nixos/configuration.nix
+        windscribe-nixos.nixosModules.windscribe
         # PrismLauncher-Cracked overlay + fix for removed KDE5 extra-cmake-modules alias
         {
           nixpkgs.overlays = [

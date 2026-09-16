@@ -14,6 +14,7 @@
     modesetting.enable = true;
     nvidiaSettings = true;
     powerManagement.enable = true;
+    powerManagement.finegrained = true;
 
     prime = {
       intelBusId = "PCI:0:2:0";
